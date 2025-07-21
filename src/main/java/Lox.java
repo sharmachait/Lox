@@ -1,7 +1,8 @@
+import Runner.FileRunner.FileRunner;
+import Runner.IdleRunner.IdleRunner;
+
 import java.io.IOException;
 
-import static Runner.FileRunner.FileRunner.runFile;
-import static Runner.IdleRunner.IdleRunner.runPrompt;
 
 public class Lox {
   public static void main(String[] args) throws IOException {
@@ -9,9 +10,11 @@ public class Lox {
       System.out.println("Usage: jlox [script]");
       System.exit(64);
     } else if (args.length == 1) {
-      runFile(args[0]);
+      FileRunner fr = new FileRunner();
+      fr.runFile(args[0]);
     } else {
-      runPrompt();
+      IdleRunner idle = new IdleRunner();
+      idle.runPrompt();
     }
   }
 }
