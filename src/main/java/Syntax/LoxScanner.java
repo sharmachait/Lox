@@ -104,6 +104,8 @@ public class LoxScanner {
             case '/':
                 if(matchNext('/')){
                     while(peek()!='\n' && !isAtEnd()) advance();
+                }else if(matchNext('*')){
+                    consumeMultilineComment();
                 }else{
                     addToken(SLASH);
                 }
@@ -129,11 +131,24 @@ public class LoxScanner {
         }
     }
 
+    private void consumeMultilineComment() {
+        while (!isAtEnd() && !(peek() == '*' && peekNext() == '/')) {
+            if (peek() == '\n') line++;
+            advance();
+        }
+        if (isAtEnd()) {
+            Runner.error(line, "Unterminated multi line comment: " + source.substring(start, current));
+            return;
+        }
+
+        advance(); // '*'
+        advance(); // '/'
+    }
+
     private void identifier() {
         while (isAlphaNumeric(peek())) advance();
         String text = source.substring(start, current);
-        TokenType type = keywords.get(text);
-        if (type == null) type = IDENTIFIER;
+        TokenType type = keywords.getOrDefault(text, IDENTIFIER);
         addToken(type);
     }
 

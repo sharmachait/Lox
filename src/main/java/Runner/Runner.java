@@ -14,6 +14,7 @@ public class Runner {
         if(error!=null){
             return error;
         }
+        System.out.println("============Tokens============");
         for(int i=0; i<tokens.size(); i++){
             Token token = tokens.get(i);
 //            if(token.equals("error")){
