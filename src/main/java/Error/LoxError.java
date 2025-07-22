@@ -11,6 +11,8 @@ public class LoxError {
         this.message = message;
     }
 
+
+
     @Override
     public String toString() {
         return "[line " + line + "] Error" + where + ": " + message;

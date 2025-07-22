@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import Error.LoxError;
+import Runner.Runner;
+
 import static Runner.Runner.run;
 
 public class IdleRunner {
-    private LoxError error;
+
     public void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
@@ -16,9 +18,8 @@ public class IdleRunner {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break; // ctrl+d returns null in read line
-            this.error = run(line);
-
-            this.error = null;
+            LoxError error = run(line);
+            Runner.error = null;
         }
     }
 }

@@ -1,28 +1,32 @@
 package Runner;
 
 import java.util.List;
-import java.util.Scanner;
 import Error.LoxError;
+import Syntax.LoxScanner;
+import Syntax.Token;
 
 
 public class Runner {
+    public static LoxError error = null;
     public static LoxError run(String source){
-        Scanner scanner = new Scanner(source);
-        List<String> tokens = scanner.tokens().toList();
-        boolean error = false;
-
+        LoxScanner scanner = new LoxScanner(source);
+        List<Token> tokens = scanner.scanTokens();
+        if(error!=null){
+            return error;
+        }
         for(int i=0; i<tokens.size(); i++){
-            String token = tokens.get(i);
-            if(token.equals("error")){
-                return error(i, "error in: "+ token);
-            }
+            Token token = tokens.get(i);
+//            if(token.equals("error")){
+//                return error(i, "error in: "+ token);
+//            }
             System.out.println(token);
         }
         return null;
     }
-    static LoxError error(int line, String message){
+    public static LoxError error(int line, String message){
         LoxError err = new LoxError(line, "",  message);
         System.err.println(err);
+        error = err;
         return err;
     }
 }
