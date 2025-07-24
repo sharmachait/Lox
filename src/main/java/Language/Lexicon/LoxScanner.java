@@ -1,4 +1,4 @@
-package Syntax;
+package Language.Lexicon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Map;
 import Error.LoxError;
 import Runner.Runner;
 
-import static Syntax.TokenType.*;
+import static Language.Lexicon.TokenType.*;
 
 public class LoxScanner {
     private final String source;

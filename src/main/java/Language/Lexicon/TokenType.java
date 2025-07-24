@@ -1,4 +1,4 @@
-package Syntax;
+package Language.Lexicon;
 
 public enum TokenType {
     // Single-character tokens.

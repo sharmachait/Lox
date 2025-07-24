@@ -2,8 +2,8 @@ package Runner;
 
 import java.util.List;
 import Error.LoxError;
-import Syntax.LoxScanner;
-import Syntax.Token;
+import Language.Lexicon.LoxScanner;
+import Language.Lexicon.Token;
 
 
 public class Runner {
