@@ -19,7 +19,7 @@ public class IdleRunner {
             String line = reader.readLine();
             if (line == null) break; // ctrl+d returns null in read line
             LoxError error = run(line);
-            Runner.error = null;
+            Runner.scanError = null;
         }
     }
 }

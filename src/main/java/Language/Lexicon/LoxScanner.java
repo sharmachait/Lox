@@ -48,7 +48,7 @@ public class LoxScanner {
         }
 
         tokens.add(new Token(EOF, "", null, line));
-        LoxError err = Runner.error;
+        LoxError err = Runner.scanError;
         return tokens;
     }
 
@@ -125,7 +125,7 @@ public class LoxScanner {
                 }else if(isAlpha(c)){
                     identifier();
                 }else{
-                    Runner.error(line, "Unexpected character: "+c+".");
+                    Runner.scannerError(line, "Unexpected character: "+c+".");
                 }
                 break;
         }
@@ -137,7 +137,7 @@ public class LoxScanner {
             advance();
         }
         if (isAtEnd()) {
-            Runner.error(line, "Unterminated multi line comment: " + source.substring(start, current));
+            Runner.scannerError(line, "Unterminated multi line comment: " + source.substring(start, current));
             return;
         }
 
@@ -166,7 +166,7 @@ public class LoxScanner {
         if(peek() == '.' && Character.isDigit(peekNext())){
             advance();
             if(!Character.isDigit(peek())){
-                Runner.error(line, "Invalid number literal: "+source.substring(start,current)+".");
+                Runner.scannerError(line, "Invalid number literal: "+source.substring(start,current)+".");
                 return;
             }
             while(Character.isDigit(peek())) advance();
@@ -180,7 +180,7 @@ public class LoxScanner {
             advance();
         }
         if(isAtEnd()){
-            Runner.error(line, "Unterminated string: "+source.substring(start,source.length())+" .");
+            Runner.scannerError(line, "Unterminated string: "+source.substring(start,source.length())+" .");
             return;
         }
         // current must necessarily be at "
