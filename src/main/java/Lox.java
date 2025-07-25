@@ -1,3 +1,7 @@
+import Language.Lexicon.Token;
+import Language.Lexicon.TokenType;
+import Language.Syntax.Grammar.*;
+import Language.Syntax.Parsing.AstPrinter;
 import Runner.FileRunner.FileRunner;
 import Runner.IdleRunner.IdleRunner;
 
@@ -17,5 +21,15 @@ public class Lox {
       idle.runPrompt();
     }
   }
+//    public static void main(String[] args) {
+//        Expression expr = new BinaryExpression(
+//                new UnaryExpression(
+//                        new Token(TokenType.MINUS, "-", null, 1),
+//                        new Literal(123)
+//                ),
+//                new Token(TokenType.STAR, "*", null, 1),
+//                new Grouping(new Literal(45.67))
+//        );
+//        System.out.println(new AstPrinter().print(expr));
+//    }
 }
-// https://craftinginterpreters.com/representing-code.html#a-not-very-pretty-printer

@@ -3,7 +3,7 @@ package Language.Syntax.Parsing;
 import Language.Syntax.Grammar.*;
 
 public class AstPrinter implements Visitor<String>{
-    String print(Expression expr){
+    public String print(Expression expr){
         return expr.accept(this);
     }
 
@@ -15,8 +15,6 @@ public class AstPrinter implements Visitor<String>{
         return parenthesize(lexeme, left, right);
     }
 
-    private String parenthesize(String lexeme, Expression left, Expression right) {
-    }
     @Override
     public String visitUnaryExpression(UnaryExpression unaryExpression) {
         String lexeme = unaryExpression.operator.lexeme;
@@ -29,7 +27,15 @@ public class AstPrinter implements Visitor<String>{
         return parenthesize("group", grouping.expression);
     }
 
-    private String parenthesize(String group, Expression expression) {
+    private String parenthesize(String name, Expression... expressions) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(").append(name);
+        for(Expression expression : expressions){
+            sb.append(" ");
+            sb.append(expression.accept(this));
+        }
+        sb.append(")");
+        return sb.toString();
     }
 
     @Override
