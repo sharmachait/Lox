@@ -1,4 +1,4 @@
-package Runner.FileRunner;
+package Runner;
 
 import Error.LoxError;
 import java.io.IOException;

@@ -1,9 +1,5 @@
-import Language.Lexicon.Token;
-import Language.Lexicon.TokenType;
-import Language.Syntax.Grammar.*;
-import Language.Syntax.Parsing.AstPrinter;
-import Runner.FileRunner.FileRunner;
-import Runner.IdleRunner.IdleRunner;
+import Runner.FileRunner;
+import Runner.IdleRunner;
 
 import java.io.IOException;
 

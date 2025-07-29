@@ -1,10 +1,9 @@
-package Runner.IdleRunner;
+package Runner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import Error.LoxError;
-import Runner.Runner;
 
 import static Runner.Runner.run;
 
