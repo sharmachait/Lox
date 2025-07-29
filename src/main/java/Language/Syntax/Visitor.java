@@ -1,12 +1,10 @@
-package Language.Syntax.Parsing;
+package Language.Syntax;
 
-import Language.Syntax.Grammar.BinaryExpression;
-import Language.Syntax.Grammar.Grouping;
-import Language.Syntax.Grammar.Literal;
-import Language.Syntax.Grammar.UnaryExpression;
+import Language.Syntax.Grammar.*;
 
 public interface Visitor<R> {
     public R visitBinaryExpression(BinaryExpression binaryExpression);
+    public R visitTernaryExpression(TernaryExpression ternaryExpression);
     public R visitUnaryExpression(UnaryExpression unaryExpression);
     public R visitGroupingExpression(Grouping grouping);
     public R visitLiteralExpression(Literal literal);

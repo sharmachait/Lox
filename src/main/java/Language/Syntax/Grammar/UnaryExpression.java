@@ -1,7 +1,7 @@
 package Language.Syntax.Grammar;
 
 import Language.Lexicon.Token;
-import Language.Syntax.Parsing.Visitor;
+import Language.Syntax.Visitor;
 
 public class UnaryExpression extends Expression{
     public final Token operator;

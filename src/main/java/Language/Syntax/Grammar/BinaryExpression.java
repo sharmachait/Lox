@@ -1,7 +1,7 @@
 package Language.Syntax.Grammar;
 
 import Language.Lexicon.Token;
-import Language.Syntax.Parsing.Visitor;
+import Language.Syntax.Visitor;
 
 public class BinaryExpression extends Expression {
     public final Expression left, right;

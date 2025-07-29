@@ -1,6 +1,6 @@
 package Language.Syntax.Grammar;
 
-import Language.Syntax.Parsing.Visitor;
+import Language.Syntax.Visitor;
 
 public class Literal extends Expression {
     public final Object value;

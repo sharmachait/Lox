@@ -71,6 +71,12 @@ public class LoxScanner {
             case '}':
                 addToken(RIGHT_BRACE);
                 break;
+            case ':':
+                addToken(COLON);
+                break;
+            case '?':
+                addToken(QUESTION);
+                break;
             case ',':
                 addToken(COMMA);
                 break;

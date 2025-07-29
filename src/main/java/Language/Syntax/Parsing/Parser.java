@@ -16,12 +16,66 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
-    
+
+    public Expression parse(){
+        try{
+            return expression();
+        }catch(ParseError e){
+            return null;
+        }
+    }
+
     private Expression expression(){
+        return comma();
+    }
+
+    private Expression comma(){
+        try{
+            handleBinaryOperatorWithoutLeftExpression(COMMA);
+        }catch (ParseError e){
+            //discard right hand expression
+            //Expression discarded = ternary();
+            return null;
+        }
+        Expression expr = ternary();
+        while(match(COMMA)){
+            Token operator = previous();
+            Expression right = ternary();
+            expr = new BinaryExpression(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private Expression ternary(){
+        try{
+            handleBinaryOperatorWithoutLeftExpression(QUESTION);
+        }catch (ParseError e){
+            //discard right hand expression
+            //Expression discarded = assignment();
+            return null;
+        }
+        Expression expr = assignment();
+        if(match(QUESTION)){
+            Expression trueBranch = expression();
+            consume(COLON, "Colon Expected after ? of ternary expression.");
+            Expression falseBranch = expression();
+            expr = new TernaryExpression(expr, trueBranch, falseBranch);
+        }
+        return expr;
+    }
+
+    private Expression assignment(){
         return equality();
     }
 
     private Expression equality() {
+        try{
+            handleBinaryOperatorWithoutLeftExpression(BANG_EQUAL, EQUAL_EQUAL);
+        }catch (ParseError e){
+            //discard right hand expression
+            //Expression discarded = comparison();
+            return null;
+        }
         Expression expr = comparison();
 
         while(match(BANG_EQUAL, EQUAL_EQUAL)){
@@ -36,6 +90,13 @@ public class Parser {
     }
 
     private Expression comparison() {
+        try{
+            handleBinaryOperatorWithoutLeftExpression(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL);
+        }catch (ParseError e){
+            //discard right hand expression
+            //Expression discarded = term();
+            return null;
+        }
         Expression expr = term();
 
         while(match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)){
@@ -47,6 +108,13 @@ public class Parser {
         return expr;
     }
     private Expression term() {
+        try{
+            handleBinaryOperatorWithoutLeftExpression(MINUS, PLUS);
+        }catch (ParseError e){
+            //discard right hand expression
+            //Expression discarded = factor();
+            return null;
+        }
         Expression expr = factor();
 
         while(match(MINUS, PLUS)){
@@ -59,6 +127,13 @@ public class Parser {
     }
 
     private Expression factor() {
+        try{
+            handleBinaryOperatorWithoutLeftExpression(SLASH, STAR);
+        }catch (ParseError e){
+            //discard right hand expression
+            //Expression discarded = unary();
+            return null;
+        }
         Expression expr = unary();
 
         while(match(SLASH, STAR)){
@@ -94,6 +169,32 @@ public class Parser {
         }
 
         throw error(peek(), "Expression expected.");
+    }
+
+    private void synchronize(){
+        advance();
+        while(!isAtEnd()){
+            if(previous().type == SEMICOLON) return;
+            switch(peek().type){
+                case CLASS, FUN, VAR, FOR, IF, WHILE, PRINT, RETURN:
+                    return;
+            }
+            advance();
+        }
+    }
+
+    private void handleBinaryOperatorWithoutLeftExpression(TokenType... operators) throws ParseError {
+        for(TokenType type:  operators){
+            if(check(type)){
+                Token operator = advance();
+                throw error(operator,"Missing left-hand operand for '"+ operator.lexeme+"'");
+            }
+        }
+    }
+
+    private Token consume(TokenType tokenType, String message) {
+        if(check(tokenType)) return advance();
+        throw error(peek(), message);
     }
 
     private ParseError error(Token token, String message){

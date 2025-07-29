@@ -1,6 +1,6 @@
 package Language.Syntax.Grammar;
 
-import Language.Syntax.Parsing.Visitor;
+import Language.Syntax.Visitor;
 
 public class Grouping extends Expression{
     public final Expression expression;

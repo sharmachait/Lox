@@ -1,8 +1,9 @@
 package Language.Syntax.Parsing;
 
 import Language.Syntax.Grammar.*;
+import Language.Syntax.Visitor;
 
-public class AstPrinter implements Visitor<String>{
+public class AstPrinter implements Visitor<String> {
     public String print(Expression expr){
         return expr.accept(this);
     }
@@ -13,6 +14,26 @@ public class AstPrinter implements Visitor<String>{
         Expression left = binaryExpression.left;
         Expression right = binaryExpression.right;
         return parenthesize(lexeme, left, right);
+    }
+
+    @Override
+    public String visitTernaryExpression(TernaryExpression ternaryExpression) {
+
+        String trueBranch = ternaryExpression.thenBranch.accept(this);
+        String falseBranch = ternaryExpression.elseBranch.accept(this);
+        String condition = ternaryExpression.condition.accept(this);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append("(");
+        sb.append(condition);
+        sb.append(") ? ");
+        sb.append(trueBranch);
+        sb.append(" : ");
+        sb.append(falseBranch);
+        sb.append(")");
+
+        return sb.toString();
     }
 
     @Override
