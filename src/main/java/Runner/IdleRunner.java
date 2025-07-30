@@ -17,8 +17,10 @@ public class IdleRunner {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break; // ctrl+d returns null in read line
-            LoxError error = run(line);
+            run(line);
             Runner.scanError = null;
+            Runner.parseError = null;
+            Runner.interpreterException = null;
         }
     }
 }

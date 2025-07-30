@@ -1,4 +1,4 @@
-package Language.Syntax.Parsing;
+package Language.Syntax;
 
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
@@ -58,8 +58,9 @@ public class Parser {
         if(match(QUESTION)){
             Expression trueBranch = expression();
             consume(COLON, "Colon Expected after ? of ternary expression.");
+            Token operator = previous();
             Expression falseBranch = expression();
-            expr = new TernaryExpression(expr, trueBranch, falseBranch);
+            expr = new TernaryExpression(expr, trueBranch, falseBranch, operator);
         }
         return expr;
     }
@@ -109,7 +110,7 @@ public class Parser {
     }
     private Expression term() {
         try{
-            handleBinaryOperatorWithoutLeftExpression(MINUS, PLUS);
+            handleBinaryOperatorWithoutLeftExpression(PLUS);
         }catch (ParseError e){
             //discard right hand expression
             //Expression discarded = factor();

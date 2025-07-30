@@ -12,9 +12,12 @@ public class FileRunner {
 
     public void runFile(String filePath) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(filePath));
-        LoxError error = run(new String(bytes, Charset.defaultCharset()));
-        if(error != null){
+        run(new String(bytes, Charset.defaultCharset()));
+        if(Runner.scanError != null || Runner.parseError != null){
             System.exit(65);
+        }
+        if(Runner.interpreterException != null){
+            System.exit(70);
         }
     }
 }

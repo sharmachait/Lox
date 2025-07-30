@@ -3,20 +3,26 @@ package Runner;
 import java.util.List;
 import Error.LoxError;
 import Error.ParseError;
+import Error.InterpreterException;
 import Language.Lexicon.LoxScanner;
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
+import Language.Syntax.Evaluation.AstPrinter;
+import Language.Syntax.Evaluation.Interpreter;
+import Language.Syntax.Grammar.Expression;
+import Language.Syntax.Parser;
 
 
 public class Runner {
     public static LoxError scanError = null;
     public static ParseError parseError = null;
-    public static LoxError run(String source){
+    public static InterpreterException interpreterException = null;
+    public static void run(String source){
         LoxScanner scanner = new LoxScanner(source);
 
         List<Token> tokens = scanner.scanTokens();
         if(scanError !=null){
-            return scanError;
+            return;
         }
         System.out.println("============Tokens============");
         for(int i=0; i<tokens.size(); i++){
@@ -26,7 +32,31 @@ public class Runner {
 //            }
             System.out.println(token);
         }
-        return null;
+        System.out.println("============Tokens============");
+        Parser parser = new Parser(tokens);
+        Expression expr = parser.parse();
+
+        if(parseError !=null){
+            return ;
+        }
+        System.out.println("============Parser============");
+        System.out.println(new AstPrinter().print(expr));
+        System.out.println("============Parser============");
+        Interpreter interpreter = new Interpreter();
+        System.out.println("============Interpreter============");
+        interpreter.interpret(expr);
+        double one = 1.0;
+        double two = 2.0;
+        double three = 3.0;
+        double six = 6.0;
+        double seven = 7.0;
+        double nine =9.0;
+        double four = 4.0;
+        double five = 5.0;
+        double expected = three+four*(two-five)/(three*three)-(-six / two);
+        System.out.println("expected = " + expected);
+
+        System.out.println("============Interpreter============");
     }
     public static void scannerError(int line, String message){
         LoxError err = new LoxError(line, "",  message);
@@ -46,5 +76,10 @@ public class Runner {
                                String message) {
         System.err.println(
                 "[line " + line + "] Error" + where + ": " + message);
+    }
+
+    public static void runtimeException(InterpreterException e) {
+        report(e.token.line, e.token.lexeme, e.getMessage());
+        interpreterException = e;
     }
 }
