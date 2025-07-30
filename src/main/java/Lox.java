@@ -29,3 +29,5 @@ public class Lox {
 //        System.out.println(new AstPrinter().print(expr));
 //    }
 }
+
+https://craftinginterpreters.com/evaluating-expressions.html#representing-values
