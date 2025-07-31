@@ -7,8 +7,8 @@ import Error.InterpreterException;
 import Language.Lexicon.LoxScanner;
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
-import Language.Syntax.Evaluation.AstPrinter;
-import Language.Syntax.Evaluation.Interpreter;
+import Language.Syntax.AstPrinter;
+import Language.Syntax.Interpreter;
 import Language.Syntax.Grammar.Expression;
 import Language.Syntax.Parser;
 
@@ -45,17 +45,6 @@ public class Runner {
         Interpreter interpreter = new Interpreter();
         System.out.println("============Interpreter============");
         interpreter.interpret(expr);
-        double one = 1.0;
-        double two = 2.0;
-        double three = 3.0;
-        double six = 6.0;
-        double seven = 7.0;
-        double nine =9.0;
-        double four = 4.0;
-        double five = 5.0;
-        double expected = three+four*(two-five)/(three*three)-(-six / two);
-        System.out.println("expected = " + expected);
-
         System.out.println("============Interpreter============");
     }
     public static void scannerError(int line, String message){

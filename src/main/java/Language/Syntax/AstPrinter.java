@@ -1,7 +1,6 @@
-package Language.Syntax.Evaluation;
+package Language.Syntax;
 
 import Language.Syntax.Grammar.*;
-import Language.Syntax.Visitor;
 
 public class AstPrinter implements Visitor<String> {
     public String print(Expression expr){
