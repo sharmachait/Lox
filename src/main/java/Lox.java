@@ -29,3 +29,5 @@ public class Lox {
 //        System.out.println(new AstPrinter().print(expr));
 //    }
 }
+
+https://craftinginterpreters.com/statements-and-state.html#environments

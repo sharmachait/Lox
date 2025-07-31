@@ -1,14 +1,22 @@
 package Language.Syntax;
 
-import Language.Syntax.Grammar.*;
 import Error.InterpreterException;
+import Language.Syntax.AST.Grammar.Expressions.*;
+import Language.Syntax.AST.Grammar.Statements.ExpressionStatement;
+import Language.Syntax.AST.Grammar.Statements.Print;
+import Language.Syntax.AST.Grammar.Statements.Statement;
+import Language.Syntax.AST.Grammar.Statements.VarDecl;
 import Runner.Runner;
 
-public class Interpreter implements Visitor<Object> {
-    public void interpret(Expression expr) {
+import java.util.List;
+
+//Unlike expressions, statements produce no values, so the return type of the visit methods is Void
+public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Void> {
+    public void interpret(List<Statement> statements) {
         try{
-            Object result = expr.accept(this);
-            System.out.println(stringify(result));
+            for(Statement statement : statements){
+                statement.accept(this);
+            }
         }catch (InterpreterException e){
             Runner.runtimeException(e);
         }
@@ -128,5 +136,28 @@ public class Interpreter implements Visitor<Object> {
         * so to evaluate a literal, we simply pull it back out.
         * */
         return literal.value;
+    }
+
+    @Override
+    public Void visitExpressionStatement(ExpressionStatement stmt) {
+         stmt.expression.accept(this);
+         return null;
+    }
+
+    @Override
+    public Void visitPrintStatement(Print stmt) {
+        Object value = stmt.expression.accept(this);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitVarStmt(VarDecl stmt) {
+        return null;
+    }
+
+    @Override
+    public Object visitVariableExpression(Variable variable) {
+        return null;
     }
 }

@@ -7,10 +7,11 @@ import Error.InterpreterException;
 import Language.Lexicon.LoxScanner;
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
+import Language.Syntax.AST.Grammar.Statements.Statement;
 import Language.Syntax.AstPrinter;
 import Language.Syntax.Interpreter;
-import Language.Syntax.Grammar.Expression;
-import Language.Syntax.Parser;
+import Language.Syntax.AST.Grammar.Expressions.Expression;
+import Language.Syntax.AST.Parser;
 
 
 public class Runner {
@@ -24,27 +25,25 @@ public class Runner {
         if(scanError !=null){
             return;
         }
-        System.out.println("============Tokens============");
-        for(int i=0; i<tokens.size(); i++){
-            Token token = tokens.get(i);
-//            if(token.equals("error")){
-//                return error(i, "error in: "+ token);
-//            }
-            System.out.println(token);
-        }
-        System.out.println("============Tokens============");
+//        System.out.println("============Tokens============");
+//        for(int i=0; i<tokens.size(); i++){
+//            Token token = tokens.get(i);
+////            if(token.equals("error")){
+////                return error(i, "error in: "+ token);
+////            }
+//            System.out.println(token);
+//        }
+//        System.out.println("============Tokens============");
         Parser parser = new Parser(tokens);
-        Expression expr = parser.parse();
+        List<Statement> statements = parser.parse();
 
         if(parseError !=null){
             return ;
         }
-        System.out.println("============Parser============");
-        System.out.println(new AstPrinter().print(expr));
-        System.out.println("============Parser============");
+
         Interpreter interpreter = new Interpreter();
         System.out.println("============Interpreter============");
-        interpreter.interpret(expr);
+        interpreter.interpret(statements);
         System.out.println("============Interpreter============");
     }
     public static void scannerError(int line, String message){

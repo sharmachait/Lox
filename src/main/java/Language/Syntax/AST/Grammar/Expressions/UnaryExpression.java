@@ -1,7 +1,7 @@
-package Language.Syntax.Grammar;
+package Language.Syntax.AST.Grammar.Expressions;
 
 import Language.Lexicon.Token;
-import Language.Syntax.Visitor;
+import Language.Syntax.ExpressionVisitor;
 
 public class UnaryExpression extends Expression{
     public final Token operator;
@@ -13,7 +13,7 @@ public class UnaryExpression extends Expression{
     }
 
     @Override
-    public <R> R accept(Visitor<R> visitor) {
-        return visitor.visitUnaryExpression(this);
+    public <R> R accept(ExpressionVisitor<R> expressionVisitor) {
+        return expressionVisitor.visitUnaryExpression(this);
     }
 }

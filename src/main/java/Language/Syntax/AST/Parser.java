@@ -1,10 +1,16 @@
-package Language.Syntax;
+package Language.Syntax.AST;
 
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
-import Language.Syntax.Grammar.*;
 import Error.ParseError;
+import Language.Syntax.AST.Grammar.Expressions.*;
+import Language.Syntax.AST.Grammar.Statements.ExpressionStatement;
+import Language.Syntax.AST.Grammar.Statements.Print;
+import Language.Syntax.AST.Grammar.Statements.Statement;
+import Language.Syntax.AST.Grammar.Statements.VarDecl;
 import Runner.Runner;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static Language.Lexicon.TokenType.*;
@@ -17,26 +23,60 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Expression parse(){
+    public List<Statement> parse(){
+        List<Statement> statements = new ArrayList<>();
+        while(!isAtEnd()){
+            statements.add(declaration());
+        }
+        return statements;
+    }
+
+    private Statement declaration() {
         try{
-            return expression();
-        }catch(ParseError e){
+            if(match(VAR)){
+                return varDeclaration();
+            }
+            return statement();
+        }catch(Exception e){
+            skipCurrentStatement();
             return null;
         }
     }
 
-    private Expression expression(){
+    private Statement varDeclaration() throws ParseError {
+        Variable var = (Variable)primary();
+        Token name = var.name;
+        Expression initializer = null;
+        if(match(EQUAL)){
+            initializer = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new VarDecl(name, initializer);
+    }
+
+    private Statement statement() throws ParseError {
+        if(match(PRINT)) return printStatement();
+        return expressionStatement();
+    }
+
+    private Statement printStatement() throws ParseError {
+        Expression expression = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Print(expression);
+    }
+
+    private Statement expressionStatement() throws ParseError {
+        Expression expression = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new ExpressionStatement(expression);
+    }
+
+    private Expression expression() throws ParseError {
         return comma();
     }
 
-    private Expression comma(){
-        try{
-            handleBinaryOperatorWithoutLeftExpression(COMMA);
-        }catch (ParseError e){
-            //discard right hand expression
-            //Expression discarded = ternary();
-            return null;
-        }
+    private Expression comma() throws ParseError {
+        handleBinaryOperatorWithoutLeftExpression(COMMA);
         Expression expr = ternary();
         while(match(COMMA)){
             Token operator = previous();
@@ -46,14 +86,8 @@ public class Parser {
         return expr;
     }
 
-    private Expression ternary(){
-        try{
-            handleBinaryOperatorWithoutLeftExpression(QUESTION);
-        }catch (ParseError e){
-            //discard right hand expression
-            //Expression discarded = assignment();
-            return null;
-        }
+    private Expression ternary() throws ParseError {
+        handleBinaryOperatorWithoutLeftExpression(QUESTION);
         Expression expr = assignment();
         if(match(QUESTION)){
             Expression trueBranch = expression();
@@ -65,18 +99,12 @@ public class Parser {
         return expr;
     }
 
-    private Expression assignment(){
+    private Expression assignment() throws ParseError {
         return equality();
     }
 
-    private Expression equality() {
-        try{
-            handleBinaryOperatorWithoutLeftExpression(BANG_EQUAL, EQUAL_EQUAL);
-        }catch (ParseError e){
-            //discard right hand expression
-            //Expression discarded = comparison();
-            return null;
-        }
+    private Expression equality() throws ParseError {
+        handleBinaryOperatorWithoutLeftExpression(BANG_EQUAL, EQUAL_EQUAL);
         Expression expr = comparison();
 
         while(match(BANG_EQUAL, EQUAL_EQUAL)){
@@ -90,14 +118,8 @@ public class Parser {
         return expr;
     }
 
-    private Expression comparison() {
-        try{
-            handleBinaryOperatorWithoutLeftExpression(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL);
-        }catch (ParseError e){
-            //discard right hand expression
-            //Expression discarded = term();
-            return null;
-        }
+    private Expression comparison() throws ParseError {
+        handleBinaryOperatorWithoutLeftExpression(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL);
         Expression expr = term();
 
         while(match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)){
@@ -108,14 +130,8 @@ public class Parser {
 
         return expr;
     }
-    private Expression term() {
-        try{
-            handleBinaryOperatorWithoutLeftExpression(PLUS);
-        }catch (ParseError e){
-            //discard right hand expression
-            //Expression discarded = factor();
-            return null;
-        }
+    private Expression term() throws ParseError {
+        handleBinaryOperatorWithoutLeftExpression(PLUS);
         Expression expr = factor();
 
         while(match(MINUS, PLUS)){
@@ -127,14 +143,8 @@ public class Parser {
         return expr;
     }
 
-    private Expression factor() {
-        try{
-            handleBinaryOperatorWithoutLeftExpression(SLASH, STAR);
-        }catch (ParseError e){
-            //discard right hand expression
-            //Expression discarded = unary();
-            return null;
-        }
+    private Expression factor() throws ParseError {
+        handleBinaryOperatorWithoutLeftExpression(SLASH, STAR);
         Expression expr = unary();
 
         while(match(SLASH, STAR)){
@@ -145,7 +155,7 @@ public class Parser {
 
         return expr;
     }
-    private Expression unary(){
+    private Expression unary() throws ParseError {
         if(match(BANG,MINUS)){
             Token operator = previous();
             Expression right = unary();
@@ -154,11 +164,13 @@ public class Parser {
         return primary();
     }
 
-    private Expression primary(){
+    private Expression primary() throws ParseError {
         if(match(FALSE)) return new Literal(false);
         if(match(TRUE)) return new Literal(true);
         if(match(NIL)) return new Literal(null);
-
+        if(match(IDENTIFIER)) {
+            return new Variable(previous());
+        }
         if(match(NUMBER, STRING)){
             return new Literal(previous().literal);
         }
@@ -172,7 +184,7 @@ public class Parser {
         throw error(peek(), "Expression expected.");
     }
 
-    private void synchronize(){
+    private void skipCurrentStatement(){
         advance();
         while(!isAtEnd()){
             if(previous().type == SEMICOLON) return;
@@ -193,12 +205,12 @@ public class Parser {
         }
     }
 
-    private Token consume(TokenType tokenType, String message) {
+    private Token consume(TokenType tokenType, String message) throws ParseError {
         if(check(tokenType)) return advance();
         throw error(peek(), message);
     }
 
-    private ParseError error(Token token, String message){
+    private ParseError error(Token token, String message) throws ParseError {
         Runner.parserError(token, message);
         return new ParseError(token.lexeme + ": " + message);
     }

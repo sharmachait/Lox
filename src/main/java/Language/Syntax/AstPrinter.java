@@ -1,15 +1,15 @@
 package Language.Syntax;
 
-import Language.Syntax.Grammar.*;
+import Language.Syntax.AST.Grammar.Expressions.*;
 
-public class AstPrinter implements Visitor<String> {
+public class AstPrinter implements ExpressionVisitor<String> {
     public String print(Expression expr){
         return expr.accept(this);
     }
 
     @Override
     public String visitBinaryExpression(BinaryExpression binaryExpression) {
-        String lexeme = binaryExpression.operator.lexeme;
+        String lexeme = binaryExpression.operator.toString();
         Expression left = binaryExpression.left;
         Expression right = binaryExpression.right;
         return parenthesize(lexeme, left, right);
@@ -37,7 +37,7 @@ public class AstPrinter implements Visitor<String> {
 
     @Override
     public String visitUnaryExpression(UnaryExpression unaryExpression) {
-        String lexeme = unaryExpression.operator.lexeme;
+        String lexeme = unaryExpression.operator.toString();
         Expression right = unaryExpression.right;
         return parenthesize(lexeme, right);
     }
@@ -62,5 +62,10 @@ public class AstPrinter implements Visitor<String> {
     public String visitLiteralExpression(Literal literal) {
         if(literal.value == null) return "nil";
         return literal.value.toString();
+    }
+
+    @Override
+    public String visitVariableExpression(Variable variable) {
+        return variable.name.toString();
     }
 }

@@ -1,7 +1,7 @@
-package Language.Syntax.Grammar;
+package Language.Syntax.AST.Grammar.Expressions;
 
 import Language.Lexicon.Token;
-import Language.Syntax.Visitor;
+import Language.Syntax.ExpressionVisitor;
 
 public class BinaryExpression extends Expression {
     public final Expression left, right;
@@ -13,8 +13,8 @@ public class BinaryExpression extends Expression {
     }
 
     @Override
-    public <R> R accept(Visitor<R> visitor) {
-        return visitor.visitBinaryExpression(this);
+    public <R> R accept(ExpressionVisitor<R> expressionVisitor) {
+        return expressionVisitor.visitBinaryExpression(this);
     }
 
 }
