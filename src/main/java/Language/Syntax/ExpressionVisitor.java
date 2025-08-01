@@ -8,5 +8,5 @@ public interface ExpressionVisitor<R> {
      R visitUnaryExpression(UnaryExpression unaryExpression);
      R visitGroupingExpression(Grouping grouping);
      R visitLiteralExpression(Literal literal);
-    R visitVariableExpression(Variable variable);
+     R visitVariableExpression(Variable variable);
 }

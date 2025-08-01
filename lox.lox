@@ -1,6 +1,7 @@
 /* multiline comment
  it is */
-var a =1;
+var a = 250;
+print a;
 //250/0;
 //3 + 4 * (2 - 5) / (3*3) - (-6 / 2);
 //print "one";
