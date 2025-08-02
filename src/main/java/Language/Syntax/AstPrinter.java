@@ -9,7 +9,7 @@ public class AstPrinter implements ExpressionVisitor<String> {
 
     @Override
     public String visitBinaryExpression(BinaryExpression binaryExpression) {
-        String lexeme = binaryExpression.operator.toString();
+        String lexeme = binaryExpression.operator.lexeme;
         Expression left = binaryExpression.left;
         Expression right = binaryExpression.right;
         return parenthesize(lexeme, left, right);
@@ -66,6 +66,11 @@ public class AstPrinter implements ExpressionVisitor<String> {
 
     @Override
     public String visitVariableExpression(Variable variable) {
-        return variable.name.toString();
+        return variable.name.lexeme;
+    }
+
+    @Override
+    public String visitAssignmentExpression(Assignment variable) {
+        return variable.name.lexeme + " = " + variable.value.accept(this);
     }
 }

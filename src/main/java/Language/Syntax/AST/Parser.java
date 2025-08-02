@@ -8,6 +8,7 @@ import Language.Syntax.AST.Grammar.Statements.ExpressionStatement;
 import Language.Syntax.AST.Grammar.Statements.Print;
 import Language.Syntax.AST.Grammar.Statements.Statement;
 import Language.Syntax.AST.Grammar.Statements.VarDecl;
+import Language.Syntax.AstPrinter;
 import Runner.Runner;
 
 import java.util.ArrayList;
@@ -68,6 +69,9 @@ public class Parser {
     private Statement expressionStatement() throws ParseError {
         Expression expression = expression();
         consume(SEMICOLON, "Expect ';' after value.");
+        System.out.println("============PrintStatement============");
+        System.out.println(new AstPrinter().print(expression));
+        System.out.println("============PrintStatement============");
         return new ExpressionStatement(expression);
     }
 
@@ -100,7 +104,18 @@ public class Parser {
     }
 
     private Expression assignment() throws ParseError {
-        return equality();
+        Expression expression =  equality();
+        if(match(EQUAL)) {
+            Token equals = previous();
+            Expression value = assignment();
+
+            if(expression instanceof Variable) {
+                Token name = ((Variable) expression).name;
+                return new Assignment(name, value);
+            }
+            throw error(equals, "Invalid assignment target.");
+        }
+        return expression;
     }
 
     private Expression equality() throws ParseError {

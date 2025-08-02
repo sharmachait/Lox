@@ -1,5 +1,6 @@
 package Language.Syntax.AST.Grammar.Expressions;
 
+import Error.InterpreterException;
 import Language.Lexicon.Token;
 import Language.Syntax.ExpressionVisitor;
 
@@ -11,7 +12,7 @@ public class Variable extends Expression {
     }
 
     @Override
-    public <R> R accept(ExpressionVisitor<R> expressionVisitor) {
+    public <R> R accept(ExpressionVisitor<R> expressionVisitor){
         return expressionVisitor.visitVariableExpression(this);
     }
 }

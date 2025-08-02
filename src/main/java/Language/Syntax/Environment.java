@@ -60,4 +60,12 @@ public class Environment {
 
         throw new InterpreterException("Undefined variable '" + name.lexeme + "'.", name);
     }
+
+    public Object assign(Token name, Object value){
+        if(values.containsKey(name.lexeme)){
+            values.put(name.lexeme, value);
+            return value;
+        }
+        throw new InterpreterException("Undefined variable '" + name.lexeme + "'.", name);
+    }
 }

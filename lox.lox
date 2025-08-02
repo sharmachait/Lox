@@ -1,7 +1,10 @@
 /* multiline comment
  it is */
 var a = 250;
-print a;
+var b = 100;
+a=b=a=b;
+print "a is " + a;
+print b=300;
 //250/0;
 //3 + 4 * (2 - 5) / (3*3) - (-6 / 2);
 //print "one";

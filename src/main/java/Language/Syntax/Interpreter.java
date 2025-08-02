@@ -12,6 +12,7 @@ import java.util.List;
 
 //Unlike expressions, statements produce no values, so the return type of the visit methods is Void
 public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Void> {
+    private Environment env = Environment.getInstance();
     public void interpret(List<Statement> statements) {
         try{
             for(Statement statement : statements){
@@ -61,7 +62,7 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
                     return (double)left * (double)right;
                 case PLUS:
                     if(left instanceof String || right instanceof String){
-                        return (String)left + (String)right;
+                        return ""+left+right;
                     }
                     return (double)left + (double)right;
             }
@@ -153,11 +154,22 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
 
     @Override
     public Void visitVarStmt(VarDecl stmt) {
+        Object value = null;
+        if(stmt.initializer!=null){
+            value = stmt.initializer.accept(this);
+        }
+        env.define(stmt.name.lexeme, value);
         return null;
     }
 
     @Override
-    public Object visitVariableExpression(Variable variable) {
-        return null;
+    public Object visitVariableExpression(Variable variable){
+        return env.get(variable.name);
+    }
+
+    @Override
+    public Object visitAssignmentExpression(Assignment assign) {
+        Object value = assign.value.accept(this);
+        return env.assign(assign.name, value);
     }
 }
