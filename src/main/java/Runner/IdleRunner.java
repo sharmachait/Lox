@@ -17,7 +17,7 @@ public class IdleRunner {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break; // ctrl+d returns null in read line
-            run(line);
+            run(line, true);
             Runner.scanError = null;
             Runner.parseError = null;
             Runner.interpreterException = null;

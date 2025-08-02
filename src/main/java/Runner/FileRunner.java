@@ -12,7 +12,7 @@ public class FileRunner {
 
     public void runFile(String filePath) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(filePath));
-        run(new String(bytes, Charset.defaultCharset()));
+        run(new String(bytes, Charset.defaultCharset()), false);
         if(Runner.scanError != null || Runner.parseError != null){
             System.exit(65);
         }

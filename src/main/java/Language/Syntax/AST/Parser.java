@@ -4,13 +4,11 @@ import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
 import Error.ParseError;
 import Language.Syntax.AST.Grammar.Expressions.*;
-import Language.Syntax.AST.Grammar.Statements.ExpressionStatement;
-import Language.Syntax.AST.Grammar.Statements.Print;
-import Language.Syntax.AST.Grammar.Statements.Statement;
-import Language.Syntax.AST.Grammar.Statements.VarDecl;
+import Language.Syntax.AST.Grammar.Statements.*;
 import Language.Syntax.AstPrinter;
 import Runner.Runner;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,14 +32,22 @@ public class Parser {
 
     private Statement declaration() {
         try{
-            if(match(VAR)){
-                return varDeclaration();
-            }
+            if(match(VAR)) return varDeclaration();
+            if(match(LEFT_BRACE)) return new Block(block());
             return statement();
         }catch(Exception e){
             skipCurrentStatement();
             return null;
         }
+    }
+
+    private List<Statement> block()throws ParseError{
+        List<Statement> statements = new ArrayList<>();
+        while(!check(RIGHT_BRACE) && !isAtEnd()){
+            statements.add(declaration());
+        }
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
     private Statement varDeclaration() throws ParseError {
@@ -69,9 +75,6 @@ public class Parser {
     private Statement expressionStatement() throws ParseError {
         Expression expression = expression();
         consume(SEMICOLON, "Expect ';' after value.");
-        System.out.println("============PrintStatement============");
-        System.out.println(new AstPrinter().print(expression));
-        System.out.println("============PrintStatement============");
         return new ExpressionStatement(expression);
     }
 

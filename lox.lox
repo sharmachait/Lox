@@ -1,14 +1,9 @@
-/* multiline comment
- it is */
-var a = 250;
-var b = 100;
-a=b=a=b;
-print "a is " + a;
-print b=300;
-//250/0;
-//3 + 4 * (2 - 5) / (3*3) - (-6 / 2);
-//print "one";
-//print true;
-//print 250/0;
 
+var a = 1;
+{
+  var a = a + 2;
+  print a;
+}
+print a;
 
+// C:\Users\chait\OneDrive\Desktop\lox\lox.lox

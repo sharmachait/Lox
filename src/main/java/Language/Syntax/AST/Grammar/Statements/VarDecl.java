@@ -20,6 +20,6 @@ public class VarDecl extends Statement {
 
     @Override
     public <R> R accept(StatementVisitor<R> visitor) {
-        return visitor.visitVarStmt(this);
+        return visitor.visitVarStatement(this);
     }
 }

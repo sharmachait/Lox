@@ -120,3 +120,24 @@ we assign the LHS to it in the env
 
 We want the syntax tree to reflect that an l-value isn’t evaluated like a normal expression, 
 which is why we keep a token for LHS and not an expression
+
+Adding Lexical scopes
+```cfg
+program        → declaration* EOF ;
+declaration    → varDecl | statement ;
+statement      → exprStmt | printStmt | block ;
+block          → "{" declaration "}" ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+expression     → comma ;
+comma          → ternary ( "," ternary )* ;
+ternary        → assignment ( "?" expression ":" ternary )? ;
+assignment     → IDENTIFIER "=" assignment | equality ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+```

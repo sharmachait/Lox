@@ -18,7 +18,7 @@ public class Runner {
     public static LoxError scanError = null;
     public static ParseError parseError = null;
     public static InterpreterException interpreterException = null;
-    public static void run(String source){
+    public static void run(String source, boolean isIdle){
         LoxScanner scanner = new LoxScanner(source);
 
         List<Token> tokens = scanner.scanTokens();
@@ -43,7 +43,8 @@ public class Runner {
 
         Interpreter interpreter = new Interpreter();
         System.out.println("============Interpreter============");
-        interpreter.interpret(statements);
+        List<Object> res = interpreter.interpret(statements);
+        if(isIdle) System.out.println(res);
         System.out.println("============Interpreter============");
     }
     public static void scannerError(int line, String message){

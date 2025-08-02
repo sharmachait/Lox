@@ -2,25 +2,25 @@ package Language.Syntax;
 
 import Error.InterpreterException;
 import Language.Syntax.AST.Grammar.Expressions.*;
-import Language.Syntax.AST.Grammar.Statements.ExpressionStatement;
-import Language.Syntax.AST.Grammar.Statements.Print;
-import Language.Syntax.AST.Grammar.Statements.Statement;
-import Language.Syntax.AST.Grammar.Statements.VarDecl;
+import Language.Syntax.AST.Grammar.Statements.*;
 import Runner.Runner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //Unlike expressions, statements produce no values, so the return type of the visit methods is Void
-public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Void> {
-    private Environment env = Environment.getInstance();
-    public void interpret(List<Statement> statements) {
+public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Object> {
+    private Environment env = new Environment();
+    public List<Object> interpret(List<Statement> statements) {
+        List<Object> res = new ArrayList<>();
         try{
             for(Statement statement : statements){
-                statement.accept(this);
+                res.add(statement.accept(this));
             }
         }catch (InterpreterException e){
             Runner.runtimeException(e);
         }
+        return res;
     }
 
     private String stringify(Object result) {
@@ -140,36 +140,57 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     }
 
     @Override
-    public Void visitExpressionStatement(ExpressionStatement stmt) {
-         stmt.expression.accept(this);
-         return null;
+    public Object visitExpressionStatement(ExpressionStatement stmt) {
+         return stmt.expression.accept(this);
     }
 
     @Override
-    public Void visitPrintStatement(Print stmt) {
+    public Object visitPrintStatement(Print stmt) {
         Object value = stmt.expression.accept(this);
         System.out.println(stringify(value));
-        return null;
+        return value;
     }
 
     @Override
-    public Void visitVarStmt(VarDecl stmt) {
+    public Object visitVarStatement(VarDecl stmt) {
         Object value = null;
+        Environment.Val val;
         if(stmt.initializer!=null){
             value = stmt.initializer.accept(this);
+            val = Environment.Val.of(value, true);
+        }else{
+            val = Environment.Val.of(value);
         }
-        env.define(stmt.name.lexeme, value);
-        return null;
+
+        env.define(stmt.name.lexeme, val);
+        return value;
+    }
+
+    @Override
+    public Object visitBlockStatement(Block block) {
+        Environment scopedEnv = new Environment(this.env);
+        Environment previous = this.env;
+        List<Object> res = new ArrayList<>();
+        try{
+            this.env = scopedEnv; // shadowed
+            for(Statement stmt: block.statements ){
+                res.add(stmt.accept(this));
+            }
+        }finally{
+            this.env = previous;
+        }
+        return res;
     }
 
     @Override
     public Object visitVariableExpression(Variable variable){
-        return env.get(variable.name);
+        return env.get(variable.name).val;
     }
 
     @Override
     public Object visitAssignmentExpression(Assignment assign) {
         Object value = assign.value.accept(this);
-        return env.assign(assign.name, value);
+        Environment.Val val = Environment.Val.of(value, true);
+        return env.assign(assign.name, val);
     }
 }
