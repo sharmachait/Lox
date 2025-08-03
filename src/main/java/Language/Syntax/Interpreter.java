@@ -1,10 +1,12 @@
 package Language.Syntax;
 
-import Error.InterpreterException;
+
+import Language.Lexicon.Token;
+import Language.Lexicon.TokenType;
 import Language.Syntax.AST.Grammar.Expressions.*;
 import Language.Syntax.AST.Grammar.Statements.*;
 import Runner.Runner;
-
+import Error.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,6 +197,31 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     }
 
     @Override
+    public Object visitWhileStatement(While stmt) {
+        Object res = null;
+        while(isTruthy(stmt.condition.accept(this))){
+            try{
+                res = stmt.body.accept(this);
+            }catch (ContinueException e){
+                continue;
+            }catch (BreakException e) {
+                break;
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public Object visitBreakStatement(Break stmt){
+        throw new BreakException();
+    }
+
+    @Override
+    public Object visitContinueStatement(Continue stmt){
+        throw new ContinueException();
+    }
+
+    @Override
     public Object visitVariableExpression(Variable variable){
         return env.get(variable.name).val;
     }
@@ -204,5 +231,18 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         Object value = assign.value.accept(this);
         Environment.Val val = Environment.Val.of(value, true);
         return env.assign(assign.name, val);
+    }
+
+    @Override
+    public Object visitLogicalExpression(Logical logical) {
+        Object left = logical.left.accept(this);
+        Token operator = logical.operator;
+        if(operator.type == TokenType.OR){
+            if(isTruthy(left)) return left;
+        }else{
+            if(!isTruthy(left)) return left;
+        }
+        Object right = logical.right.accept(this);
+        return right;
     }
 }

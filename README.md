@@ -174,4 +174,58 @@ one solution is to have two if statements one that has an else and one that does
 or we can make a sematic choice, by binding the else to the nearest if in the scope, 
 by eagerly looking for an else when ever we encounter an if
 
+logical or has a lower precedence than logical and and to reflect that we update the CFG to  
+```cfg
+program        → declaration* EOF ;
+declaration    → varDecl | statement ;
+statement      → exprStmt | printStmt | block | ifStmt ;
+ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
+block          → "{" declaration "}" ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+expression     → comma ;
+comma          → ternary ( "," ternary )* ;
+ternary        → assignment ( "?" expression ":" ternary )? ;
+assignment     → IDENTIFIER "=" assignment | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+```
 
+to add while loops and for loops break and continue as well
+
+```cfg
+program        → declaration* EOF ;
+declaration    → varDecl | statement ;
+statement      → exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | breakStmt | continueStmt ;
+breakStmt      → "break" ";" ;
+continueStmt   → "continue" ";" ;
+ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
+whileStmt      → "while" "(" expression ")" statement ; 
+forStmt        → "for" "(" ( varDecl | exprStmt | ";") expression? ";" expression? ";" ")" statement ; 
+block          → "{" declaration "}" ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+expression     → comma ;
+comma          → ternary ( "," ternary )* ;
+ternary        → assignment ( "?" expression ":" ternary )? ;
+assignment     → IDENTIFIER "=" assignment | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+```
+
+as anything you can doo with for loops can also be done with while loops, 
+when we detect a for loop we can translate it to a while loop 

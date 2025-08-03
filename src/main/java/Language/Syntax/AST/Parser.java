@@ -60,9 +60,94 @@ public class Parser {
 
     private Statement statement() throws ParseError {
         if(match(PRINT)) return printStatement();
+        if(match(WHILE)) return whileStatement();
+        if(match(FOR)) return forStatement();
+        if(match(BREAK)) return breakStatement();
+        if(match(CONTINUE)) return continueStatement();
         if(match(LEFT_BRACE)) return new Block(block());
+        if(match(BREAK)) return new Block(block());
         if(match(IF)) return ifStatement();
         return expressionStatement();
+    }
+
+    private Statement continueStatement() throws ParseError {
+        consume(SEMICOLON, "Expect ';' after break.");
+        return new Continue();
+    }
+
+    private Statement breakStatement() throws ParseError {
+        consume(SEMICOLON, "Expect ';' after break.");
+        return new Break();
+    }
+
+    private Statement forStatement() throws ParseError {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+        Statement initializer;
+
+        if(match(SEMICOLON)){
+            initializer = null;
+        }else if(match(VAR)){
+            initializer = varDeclaration();
+        }else{
+            initializer = expressionStatement(); // should be statement(); if we make it like other languages
+        }
+
+        Expression condition = null;
+        if(!check(SEMICOLON)){
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        Expression incer = null;
+
+        if(!check(RIGHT_PAREN)){
+            incer = expression();
+        }
+        consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+        Statement body = statement();
+
+        if(incer!=null) {
+            body = new Block(
+                List.of(
+                    body,
+                    new ExpressionStatement(incer)
+                )
+            );
+        }
+        /*
+        * {
+        * body => block | statement
+        * incerStatement
+        * }
+        */
+        if(condition == null) condition = new Literal(true);
+        Statement whileStmt = new While(condition, body);
+
+        Statement forStmt = whileStmt;
+
+        if(initializer!=null){
+            forStmt = new Block(
+                    List.of(initializer, whileStmt)
+            );
+        }
+        /*
+         *{
+         * initializer,
+         *  {
+         *  body => block | statement,
+         *  incerStatement
+         *  }
+         * }
+         */
+        return forStmt;
+    }
+
+    private Statement whileStatement() throws ParseError {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after condition.");
+        Statement body = statement();
+        return new While(condition, body);
     }
 
     private Statement ifStatement() throws ParseError {
@@ -118,7 +203,7 @@ public class Parser {
     }
 
     private Expression assignment() throws ParseError {
-        Expression expression =  equality();
+        Expression expression =  or();
         if(match(EQUAL)) {
             Token equals = previous();
             Expression value = assignment();
@@ -130,6 +215,28 @@ public class Parser {
             throw error(equals, "Invalid assignment target.");
         }
         return expression;
+    }
+
+    public Expression or() throws ParseError{
+        handleBinaryOperatorWithoutLeftExpression(OR);
+        Expression left = and();
+        while(match(OR)){
+            Token operator = previous();
+            Expression right = and();
+            left = new Logical(left, operator, right);
+        }
+        return left;
+    }
+
+    public Expression and() throws ParseError{
+        handleBinaryOperatorWithoutLeftExpression(AND);
+        Expression left = equality();
+        while(match(AND)){
+            Token operator = previous();
+            Expression right = equality();
+            left = new Logical(left, operator, right);
+        }
+        return left;
     }
 
     private Expression equality() throws ParseError {

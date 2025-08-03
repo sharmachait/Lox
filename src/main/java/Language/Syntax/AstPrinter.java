@@ -73,4 +73,12 @@ public class AstPrinter implements ExpressionVisitor<String> {
     public String visitAssignmentExpression(Assignment variable) {
         return variable.name.lexeme + " = " + variable.value.accept(this);
     }
+
+    @Override
+    public String visitLogicalExpression(Logical logical) {
+        String lexeme = logical.operator.lexeme;
+        Expression left = logical.left;
+        Expression right = logical.right;
+        return parenthesize(lexeme, left, right);
+    }
 }

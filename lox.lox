@@ -1,7 +1,8 @@
-if(nil){
-    print 2;
-}else{
-    print 3;
+var a = 1;
+while(a< 5){
+    print a;
+    if(a > 2) continue;
+    a =a+1;
 }
 
 // C:\Users\chait\OneDrive\Desktop\lox\lox.lox
