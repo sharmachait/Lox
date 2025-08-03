@@ -1,9 +1,7 @@
-
-var a = 1;
-{
-  var a = a + 2;
-  print a;
+if(nil){
+    print 2;
+}else{
+    print 3;
 }
-print a;
 
 // C:\Users\chait\OneDrive\Desktop\lox\lox.lox

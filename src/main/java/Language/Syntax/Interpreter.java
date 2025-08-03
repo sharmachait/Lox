@@ -183,6 +183,18 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     }
 
     @Override
+    public Object visitIfStatement(If stmt) {
+        Object res=null;
+        Object condition = stmt.condition.accept(this);
+        if(isTruthy(condition)){
+            res = stmt.thenBranch.accept(this);
+        }else if(stmt.elseBranch!=null){
+            res = stmt.elseBranch.accept(this);
+        }
+        return res;
+    }
+
+    @Override
     public Object visitVariableExpression(Variable variable){
         return env.get(variable.name).val;
     }

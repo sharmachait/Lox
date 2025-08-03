@@ -141,3 +141,37 @@ factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary | primary ;
 primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 ```
+
+Adding conditions
+```cfg
+program        → declaration* EOF ;
+declaration    → varDecl | statement ;
+statement      → exprStmt | printStmt | block | ifStmt ;
+ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
+block          → "{" declaration "}" ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+expression     → comma ;
+comma          → ternary ( "," ternary )* ;
+ternary        → assignment ( "?" expression ":" ternary )? ;
+assignment     → IDENTIFIER "=" assignment | equality ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+```
+
+this grammar is ambiguous, Consider:
+`if (first) if (second) whenTrue(); else whenFalse();`
+
+which if does the else belong to
+this is a classic dangling else problem
+one solution is to have two if statements one that has an else and one that doesnt in the CFG itself
+
+or we can make a sematic choice, by binding the else to the nearest if in the scope, 
+by eagerly looking for an else when ever we encounter an if
+
+

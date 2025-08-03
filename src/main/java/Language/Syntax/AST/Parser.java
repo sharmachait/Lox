@@ -5,10 +5,7 @@ import Language.Lexicon.TokenType;
 import Error.ParseError;
 import Language.Syntax.AST.Grammar.Expressions.*;
 import Language.Syntax.AST.Grammar.Statements.*;
-import Language.Syntax.AstPrinter;
 import Runner.Runner;
-
-import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +30,7 @@ public class Parser {
     private Statement declaration() {
         try{
             if(match(VAR)) return varDeclaration();
-            if(match(LEFT_BRACE)) return new Block(block());
+
             return statement();
         }catch(Exception e){
             skipCurrentStatement();
@@ -63,7 +60,21 @@ public class Parser {
 
     private Statement statement() throws ParseError {
         if(match(PRINT)) return printStatement();
+        if(match(LEFT_BRACE)) return new Block(block());
+        if(match(IF)) return ifStatement();
         return expressionStatement();
+    }
+
+    private Statement ifStatement() throws ParseError {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+        Statement thenBranch = statement();
+        Statement elseBranch = null;
+        if(match(ELSE)){
+            elseBranch = statement();
+        }
+        return new If(condition, thenBranch, elseBranch);
     }
 
     private Statement printStatement() throws ParseError {
