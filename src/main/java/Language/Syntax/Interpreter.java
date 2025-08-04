@@ -5,6 +5,9 @@ import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
 import Language.Syntax.AST.Grammar.Expressions.*;
 import Language.Syntax.AST.Grammar.Statements.*;
+import Language.Syntax.Functions.Clock;
+import Language.Syntax.Functions.LoxFunction;
+import Language.Syntax.Functions.ReadLine;
 import Runner.Runner;
 import Error.*;
 import java.util.ArrayList;
@@ -12,7 +15,18 @@ import java.util.List;
 
 //Unlike expressions, statements produce no values, so the return type of the visit methods is Void
 public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Object> {
-    private Environment env = new Environment();
+    final Environment global = new Environment(); // never changing
+    private Environment env = global; // can change as we enter different blocks of scope
+
+    public Environment getGlobal() {
+        return global;
+    }
+
+    public Interpreter() {
+        global.define("clock", Environment.Val.of(new Clock(), true));
+        global.define("readLine", Environment.Val.of(new ReadLine(), true));
+    }
+
     public List<Object> interpret(List<Statement> statements) {
         List<Object> res = new ArrayList<>();
         try{
@@ -171,6 +185,10 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     @Override
     public Object visitBlockStatement(Block block) {
         Environment scopedEnv = new Environment(this.env);
+        return executeBlock(block, scopedEnv);
+    }
+
+    public List<Object> executeBlock(Block block, Environment scopedEnv) {
         Environment previous = this.env;
         List<Object> res = new ArrayList<>();
         try{
@@ -222,6 +240,13 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     }
 
     @Override
+    public Object visitFunctionStatement(Function functionStatement) {
+        LoxFunction function = new LoxFunction(functionStatement);
+        env.define(functionStatement.name.lexeme, Environment.Val.of(function, true));
+        return null;
+    }
+
+    @Override
     public Object visitVariableExpression(Variable variable){
         return env.get(variable.name).val;
     }
@@ -242,13 +267,16 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         }else{
             if(!isTruthy(left)) return left;
         }
-        Object right = logical.right.accept(this);
-        return right;
+        return logical.right.accept(this);
     }
 
     @Override
     public Object visitCallExpression(Call call) {
+
         Object callee = call.callee.accept(this);
+        if(!(callee instanceof LoxCallable)){
+            throw new InterpreterException("Can only call functions and classes.", call.paren);
+        }
         List<Object> arguments = new ArrayList<>();
 
         for(Expression arg : call.arguments){
@@ -256,6 +284,11 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         }
 
         LoxCallable function = (LoxCallable) callee;
+        if(arguments.size() != function.arity()){
+            throw new InterpreterException(
+                    "Expected " + function.arity() + " arguments but got " + arguments.size() + ".",
+                    call.paren);
+        }
         return function.call(this, arguments);
     }
 }

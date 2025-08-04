@@ -12,4 +12,5 @@ public interface StatementVisitor<R> {
     R visitWhileStatement(While stmt);
     R visitBreakStatement(Break stmt);
     R visitContinueStatement(Continue stmt);
+    R visitFunctionStatement(Function function);
 }

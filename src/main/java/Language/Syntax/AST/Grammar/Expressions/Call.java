@@ -7,14 +7,14 @@ import java.util.List;
 
 public class Call extends Expression{
     public final Expression callee;
-    //public final Token paren;
+    public final Token paren;
     public final List<Expression> arguments;
 
     public Call(Expression callee
-            //, Token paren
+            , Token paren
             , List<Expression> arguments) {
         this.callee = callee;
-        //this.paren = paren;
+        this.paren = paren;
         this.arguments = arguments;
     }
 

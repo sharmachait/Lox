@@ -262,3 +262,39 @@ arguments      → expression ( "," expression )* ;
 primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 ```
 To handle zero-argument calls, the call rule itself considers the entire arguments production to be optional.
+
+native functions are globally scoped, so they need to be added to a global Environment that is not changing
+therefore we add a global in the Interpreter
+we also need to add function declarations to the grammar
+
+```cfg
+program        → declaration* EOF ;
+declaration    → varDecl | statement | funDecl ;
+funDecl        → "fun" function;
+function       → IDENTIFIER "(" parameters? ")" block ;
+parmeters      → IDENTIFIER ( "," IDENTIFIER )* ;
+statement      → exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | breakStmt | continueStmt ;
+breakStmt      → "break" ";" ;
+continueStmt   → "continue" ";" ;
+ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
+whileStmt      → "while" "(" expression ")" statement ; 
+forStmt        → "for" "(" ( varDecl | exprStmt | ";") expression? ";" expression? ";" ")" statement ; 
+block          → "{" declaration "}" ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+expression     → comma ;
+comma          → ternary ( "," ternary )* ;
+ternary        → assignment ( "?" expression ":" ternary )? ;
+assignment     → IDENTIFIER "=" assignment | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary | call ;
+call           → primary ( "(" arguments? ")" )* ;
+arguments      → expression ( "," expression )* ; 
+primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+```

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Environment {
-    static class Val{
+    public static class Val{
         public boolean isDeclaredOrAssigned = false;
         public Object val;
         public static Val of(Object val, boolean isDeclaredOrAssigned){

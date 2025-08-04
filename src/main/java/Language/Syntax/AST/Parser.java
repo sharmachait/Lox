@@ -30,7 +30,7 @@ public class Parser {
     private Statement declaration() {
         try{
             if(match(VAR)) return varDeclaration();
-
+            if(match(FUN)) return function("function");
             return statement();
         }catch(Exception e){
             skipCurrentStatement();
@@ -38,10 +38,31 @@ public class Parser {
         }
     }
 
+    private Statement function(String kind) throws ParseError {
+        Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<Token> parameters = new ArrayList<>();
+        if(!check(RIGHT_PAREN)){
+            do {
+                if (parameters.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.");
+                }
+
+                parameters.add(
+                        consume(IDENTIFIER, "Expect parameter name."));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Statement> body = block();
+        return new Function(name, parameters, body);
+    }
+
     private List<Statement> block()throws ParseError{
         List<Statement> statements = new ArrayList<>();
         while(!check(RIGHT_BRACE) && !isAtEnd()){
-            statements.add(declaration());
+            Statement statement = declaration();
+            statements.add(statement);
         }
         consume(RIGHT_BRACE, "Expect '}' after block.");
         return statements;
@@ -175,7 +196,7 @@ public class Parser {
     }
 
     private Expression expression() throws ParseError {
-        return comma();
+        return ternary();
     }
 
     private Expression comma() throws ParseError {
@@ -301,14 +322,14 @@ public class Parser {
     }
 
     private Expression call() throws ParseError {
-        Expression expr = expression();
-        List<Expression> arguments = null;
+        Expression expr = primary();
+        List<Expression> arguments = new ArrayList<>();
         while(true){ // we do it in a while loop because our language treas functions like 1st members and we can return functions from function so we can call them like func()()()()()()()();
             if(match(LEFT_PAREN)) {
                 if(!check(RIGHT_PAREN)) arguments = arguments();
                 Token paren = consume(RIGHT_PAREN,"Expect ')' after arguments.");
                 expr = new Call(expr
-                        //, paren
+                        , paren
                         , arguments);
             } else {
                 break;
@@ -404,10 +425,12 @@ public class Parser {
         return previous();
     }
     private boolean isAtEnd(){
-        return peek().type == EOF;
+        boolean ans = peek().type == EOF;
+        return ans;
     }
     private Token peek(){
-        return tokens.get(current);
+        Token peeked = tokens.get(current);
+        return peeked;
     }
     private Token previous() {
         return tokens.get(current - 1);
