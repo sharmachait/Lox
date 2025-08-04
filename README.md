@@ -226,6 +226,39 @@ factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary | primary ;
 primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
 ```
-
 as anything you can doo with for loops can also be done with while loops, 
-when we detect a for loop we can translate it to a while loop 
+when we detect a for loop we can translate it to a while loop
+
+Adding functions
+they need to be high precedence because any expression that resolves to anything that can be called should be able to be called
+calling functions is like a post fix operator, on one thing, so its kind like a unaary
+
+```cfg
+program        → declaration* EOF ;
+declaration    → varDecl | statement ;
+statement      → exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | breakStmt | continueStmt ;
+breakStmt      → "break" ";" ;
+continueStmt   → "continue" ";" ;
+ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
+whileStmt      → "while" "(" expression ")" statement ; 
+forStmt        → "for" "(" ( varDecl | exprStmt | ";") expression? ";" expression? ";" ")" statement ; 
+block          → "{" declaration "}" ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+expression     → comma ;
+comma          → ternary ( "," ternary )* ;
+ternary        → assignment ( "?" expression ":" ternary )? ;
+assignment     → IDENTIFIER "=" assignment | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary | call ;
+call           → primary( "(" arguments? ")" )* ;
+arguments      → expression ( "," expression )* ; 
+primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+```
+To handle zero-argument calls, the call rule itself considers the entire arguments production to be optional.

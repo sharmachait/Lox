@@ -297,7 +297,42 @@ public class Parser {
             Expression right = unary();
             return new UnaryExpression(operator, right);
         }
-        return primary();
+        return call();
+    }
+
+    private Expression call() throws ParseError {
+        Expression expr = expression();
+        List<Expression> arguments = null;
+        while(true){ // we do it in a while loop because our language treas functions like 1st members and we can return functions from function so we can call them like func()()()()()()()();
+            if(match(LEFT_PAREN)) {
+                if(!check(RIGHT_PAREN)) arguments = arguments();
+                Token paren = consume(RIGHT_PAREN,"Expect ')' after arguments.");
+                expr = new Call(expr
+                        //, paren
+                        , arguments);
+            } else {
+                break;
+            }
+        }
+        return expr;
+    }
+
+    private List<Expression> arguments() throws ParseError {
+        List<Expression> arguments = new ArrayList<>();
+
+        Expression arg = expression();
+        arguments.add(arg);
+        while(match(COMMA)){
+            if (arguments.size() >= 255) {
+                error(peek(), "Can't have more than 255 arguments.");
+            }
+            arguments.add(expression());
+        }
+//            the lords loop
+//            do {
+//                arguments.add(expression());
+//            } while (match(COMMA));
+        return arguments;
     }
 
     private Expression primary() throws ParseError {

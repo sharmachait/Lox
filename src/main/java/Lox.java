@@ -30,3 +30,4 @@ public class Lox {
 //    }
 }
 
+https://craftinginterpreters.com/functions.html#call-type-errors

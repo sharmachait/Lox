@@ -81,4 +81,9 @@ public class AstPrinter implements ExpressionVisitor<String> {
         Expression right = logical.right;
         return parenthesize(lexeme, left, right);
     }
+
+    @Override
+    public String visitCallExpression(Call call) {
+        return call.callee.accept(this)+"("+call.arguments+")";
+    }
 }

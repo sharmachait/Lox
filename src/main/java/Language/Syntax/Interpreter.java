@@ -245,4 +245,17 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         Object right = logical.right.accept(this);
         return right;
     }
+
+    @Override
+    public Object visitCallExpression(Call call) {
+        Object callee = call.callee.accept(this);
+        List<Object> arguments = new ArrayList<>();
+
+        for(Expression arg : call.arguments){
+            arguments.add(arg.accept(this));
+        }
+
+        LoxCallable function = (LoxCallable) callee;
+        return function.call(this, arguments);
+    }
 }
