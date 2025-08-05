@@ -11,14 +11,17 @@ import java.util.List;
 public class LoxFunction implements LoxCallable {
     private final Function function;
 
-    public LoxFunction(Function function) {
+    private final Environment closure;
+
+    public LoxFunction(Function function, Environment closure) {
         this.function = function;
+        this.closure = closure;
     }
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        Environment environment = new Environment(interpreter.getGlobal());
-        for(int i=0; i< function.params.size(); i++){
+        Environment environment = new Environment(this.closure);
+        for(int i = 0; i < function.params.size(); i++){
             String param = function.params.get(i).lexeme;
             Object arg = arguments.get(i);
 
