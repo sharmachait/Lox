@@ -1,5 +1,6 @@
 package Language.Syntax.Functions;
 
+import Error.ReturnException;
 import Language.Syntax.AST.Grammar.Statements.Function;
 import Language.Syntax.Environment;
 import Language.Syntax.Interpreter;
@@ -24,7 +25,12 @@ public class LoxFunction implements LoxCallable {
             environment.define(param, Environment.Val.of(arg, true));
         }
 
-        return interpreter.executeBlock(function.body, environment);
+        try{
+            return interpreter.executeBlock(function.body, environment);
+        }
+        catch (ReturnException e){
+            return e.val;
+        }
     }
 
     @Override

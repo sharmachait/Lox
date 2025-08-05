@@ -88,7 +88,18 @@ public class Parser {
         if(match(LEFT_BRACE)) return new Block(block());
         if(match(BREAK)) return new Block(block());
         if(match(IF)) return ifStatement();
+        if(match(RETURN)) return returnStatement();
         return expressionStatement();
+    }
+
+    private Statement returnStatement() throws ParseError {
+        Token keyword = previous();
+        Expression expression = null;
+
+        if(!check(SEMICOLON)) expression=expression();
+
+        consume(SEMICOLON, "Expect ';' after return.");
+        return new Return(keyword, expression);
     }
 
     private Statement continueStatement() throws ParseError {

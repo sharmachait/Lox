@@ -188,13 +188,13 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         return executeBlock(block, scopedEnv);
     }
 
-    public List<Object> executeBlock(Block block, Environment scopedEnv) {
+    public Object executeBlock(Block block, Environment scopedEnv) {
         Environment previous = this.env;
-        List<Object> res = new ArrayList<>();
+        Object res = null;
         try{
             this.env = scopedEnv; // shadowed
             for(Statement stmt: block.statements ){
-                res.add(stmt.accept(this));
+                res = stmt.accept(this);
             }
         }finally{
             this.env = previous;
@@ -220,7 +220,10 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         while(isTruthy(stmt.condition.accept(this))){
             try{
                 res = stmt.body.accept(this);
-            }catch (ContinueException e){
+            } catch (ReturnException e){
+                return e.val;
+            }
+            catch (ContinueException e){
                 continue;
             }catch (BreakException e) {
                 break;
@@ -244,6 +247,14 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         LoxFunction function = new LoxFunction(functionStatement);
         env.define(functionStatement.name.lexeme, Environment.Val.of(function, true));
         return null;
+    }
+
+    @Override
+    public Object visitReturnStatement(Return stmt) {
+        Object val = null;
+        if(stmt.expression!=null)
+             val = stmt.expression.accept(this);
+        throw new ReturnException(val);
     }
 
     @Override

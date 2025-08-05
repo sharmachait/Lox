@@ -266,6 +266,7 @@ To handle zero-argument calls, the call rule itself considers the entire argumen
 native functions are globally scoped, so they need to be added to a global Environment that is not changing
 therefore we add a global in the Interpreter
 we also need to add function declarations to the grammar
+and the return statements
 
 ```cfg
 program        → declaration* EOF ;
@@ -273,7 +274,8 @@ declaration    → varDecl | statement | funDecl ;
 funDecl        → "fun" function;
 function       → IDENTIFIER "(" parameters? ")" block ;
 parmeters      → IDENTIFIER ( "," IDENTIFIER )* ;
-statement      → exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | breakStmt | continueStmt ;
+statement      → exprStmt | printStmt | block | ifStmt | whileStmt | forStmt | breakStmt | continueStmt | returnStmt ;
+returnStmt     → "return" expression? ";" ;
 breakStmt      → "break" ";" ;
 continueStmt   → "continue" ";" ;
 ifStmt         → "if" "(" expression ")" statement ("else" statement)? ;
