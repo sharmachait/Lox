@@ -1,13 +1,9 @@
-fun makeCounter() {
-  var i = 0;
-  fun count() {
-    i = i + 1;
-    print i;
-  }
-
-  return count;
+var a = 1;
+var a  =3;
+fun scope(a){
+    print a;
+    var a =2;
+    print a;
 }
-
-var counter = makeCounter();
-counter(); // "1".
-counter(); // "2".
+scope(a);
+print a;
