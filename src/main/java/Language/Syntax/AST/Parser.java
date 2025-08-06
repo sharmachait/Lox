@@ -360,7 +360,7 @@ public class Parser {
             }
             arguments.add(expression());
         }
-//            the lords loop
+//       //     the lords loop
 //            do {
 //                arguments.add(expression());
 //            } while (match(COMMA));
@@ -371,19 +371,13 @@ public class Parser {
         if(match(FALSE)) return new Literal(false);
         if(match(TRUE)) return new Literal(true);
         if(match(NIL)) return new Literal(null);
-        if(match(IDENTIFIER)) {
-            return new Variable(previous());
-        }
-        if(match(NUMBER, STRING)){
-            return new Literal(previous().literal);
-        }
-
+        if(match(IDENTIFIER)) return new Variable(previous());
+        if(match(NUMBER, STRING)) return new Literal(previous().literal);
         if(match(LEFT_PAREN)){
             Expression expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Grouping(expr);
         }
-
         throw error(peek(), "Expression expected.");
     }
 

@@ -2,10 +2,14 @@ package Language.Syntax;
 
 import Language.Lexicon.Token;
 import Error.InterpreterException;
+
+import java.beans.Encoder;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Environment {
+
+
     public static class Val{
         public boolean isDeclaredOrAssigned = false;
         public Object val;
@@ -26,14 +30,26 @@ public class Environment {
     private final Environment enclosing;
 
     public Environment() {
+        this.values = new HashMap<>();
         enclosing = null;
+    }
+
+    private Environment(Map<String,Val> values, Environment enclosing) {
+        this.values = new HashMap<>(values);
+        this.enclosing = enclosing;
+    }
+
+    private Environment(Map<String,Val> values) {
+        this.values = new HashMap<>(values);
+        this.enclosing = null;
     }
 
     public Environment(Environment enclosing) {
         this.enclosing = enclosing;
+        this.values = new HashMap<>();
     }
 
-    private final Map<String, Val> values = new HashMap<>();
+    public final Map<String, Val> values;
     // we use Strings instead of Tokens because many objects of Tokens with the same lexeme may be created at different places throughout the source code,
     // we want them all to reference the same key in the environment
     /*
@@ -90,5 +106,10 @@ public class Environment {
             return enclosing.assign(name, value);
         }
         throw new InterpreterException("Undefined variable '" + name.lexeme + "'.", name);
+    }
+    public static Environment clone(Environment env){
+        if(env.enclosing!=null)
+            return new Environment(env.values, clone(env.enclosing));
+        return new Environment(env.values);
     }
 }

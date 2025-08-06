@@ -156,8 +156,54 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     }
 
     @Override
+    public Object visitVariableExpression(Variable variable){
+        return env.get(variable.name).val;
+    }
+
+    @Override
+    public Object visitAssignmentExpression(Assignment assign) {
+        Object value = assign.value.accept(this);
+        Environment.Val val = Environment.Val.of(value, true);
+        return env.assign(assign.name, val);
+    }
+
+    @Override
+    public Object visitLogicalExpression(Logical logical) {
+        Object left = logical.left.accept(this);
+        Token operator = logical.operator;
+        if(operator.type == TokenType.OR){
+            if(isTruthy(left)) return left;
+        }else{
+            if(!isTruthy(left)) return left;
+        }
+        return logical.right.accept(this);
+    }
+
+    @Override
+    public Object visitCallExpression(Call call) {
+
+        Object callee = call.callee.accept(this);
+        if(!(callee instanceof LoxCallable)){
+            throw new InterpreterException("Can only call functions and classes.", call.paren);
+        }
+        List<Object> arguments = new ArrayList<>();
+
+        for(Expression arg : call.arguments){
+            arguments.add(arg.accept(this));
+        }
+
+        LoxCallable function = (LoxCallable) callee;
+        if(arguments.size() != function.arity()){
+            throw new InterpreterException(
+                    "Expected " + function.arity() + " arguments but got " + arguments.size() + ".",
+                    call.paren);
+        }
+        return function.call(this, arguments);
+    }
+
+    @Override
     public Object visitExpressionStatement(ExpressionStatement stmt) {
-         return stmt.expression.accept(this);
+        return stmt.expression.accept(this);
     }
 
     @Override
@@ -257,49 +303,4 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         throw new ReturnException(val);
     }
 
-    @Override
-    public Object visitVariableExpression(Variable variable){
-        return env.get(variable.name).val;
-    }
-
-    @Override
-    public Object visitAssignmentExpression(Assignment assign) {
-        Object value = assign.value.accept(this);
-        Environment.Val val = Environment.Val.of(value, true);
-        return env.assign(assign.name, val);
-    }
-
-    @Override
-    public Object visitLogicalExpression(Logical logical) {
-        Object left = logical.left.accept(this);
-        Token operator = logical.operator;
-        if(operator.type == TokenType.OR){
-            if(isTruthy(left)) return left;
-        }else{
-            if(!isTruthy(left)) return left;
-        }
-        return logical.right.accept(this);
-    }
-
-    @Override
-    public Object visitCallExpression(Call call) {
-
-        Object callee = call.callee.accept(this);
-        if(!(callee instanceof LoxCallable)){
-            throw new InterpreterException("Can only call functions and classes.", call.paren);
-        }
-        List<Object> arguments = new ArrayList<>();
-
-        for(Expression arg : call.arguments){
-            arguments.add(arg.accept(this));
-        }
-
-        LoxCallable function = (LoxCallable) callee;
-        if(arguments.size() != function.arity()){
-            throw new InterpreterException(
-                    "Expected " + function.arity() + " arguments but got " + arguments.size() + ".",
-                    call.paren);
-        }
-        return function.call(this, arguments);
-    }
 }

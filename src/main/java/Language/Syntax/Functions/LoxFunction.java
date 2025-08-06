@@ -5,6 +5,7 @@ import Language.Syntax.AST.Grammar.Statements.Function;
 import Language.Syntax.Environment;
 import Language.Syntax.Interpreter;
 import Language.Syntax.LoxCallable;
+
 import java.util.List;
 
 
@@ -15,7 +16,7 @@ public class LoxFunction implements LoxCallable {
 
     public LoxFunction(Function function, Environment closure) {
         this.function = function;
-        this.closure = closure;
+        this.closure = Environment.clone(closure);
     }
 
     @Override

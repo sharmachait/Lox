@@ -13,6 +13,5 @@ public interface StatementVisitor<R> {
     R visitBreakStatement(Break stmt);
     R visitContinueStatement(Continue stmt);
     R visitFunctionStatement(Function function);
-
     R visitReturnStatement(Return aReturn);
 }

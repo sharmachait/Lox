@@ -1,9 +1,10 @@
-var a = 1;
-var a  =3;
-fun scope(a){
+var a = "global";
+{
+  fun showA() {
     print a;
-    var a =2;
-    print a;
+  }
+
+  showA();
+  var a = "block";
+  showA();
 }
-scope(a);
-print a;
