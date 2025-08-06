@@ -1,4 +1,6 @@
-package Language.Syntax;
+package Language.Syntax.Functions;
+
+import Language.Syntax.Interpreter;
 
 import java.util.List;
 /*

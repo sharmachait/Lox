@@ -8,9 +8,7 @@ import Language.Lexicon.LoxScanner;
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
 import Language.Syntax.AST.Grammar.Statements.Statement;
-import Language.Syntax.AstPrinter;
 import Language.Syntax.Interpreter;
-import Language.Syntax.AST.Grammar.Expressions.Expression;
 import Language.Syntax.AST.Parser;
 
 

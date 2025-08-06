@@ -1,7 +1,6 @@
 package Language.Syntax.Functions;
 
 import Language.Syntax.Interpreter;
-import Language.Syntax.LoxCallable;
 
 import java.util.List;
 

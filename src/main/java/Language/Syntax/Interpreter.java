@@ -6,6 +6,7 @@ import Language.Lexicon.TokenType;
 import Language.Syntax.AST.Grammar.Expressions.*;
 import Language.Syntax.AST.Grammar.Statements.*;
 import Language.Syntax.Functions.Clock;
+import Language.Syntax.Functions.LoxCallable;
 import Language.Syntax.Functions.LoxFunction;
 import Language.Syntax.Functions.ReadLine;
 import Runner.Runner;

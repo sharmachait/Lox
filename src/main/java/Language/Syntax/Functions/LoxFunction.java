@@ -4,7 +4,7 @@ import Error.ReturnException;
 import Language.Syntax.AST.Grammar.Statements.Function;
 import Language.Syntax.Environment;
 import Language.Syntax.Interpreter;
-import Language.Syntax.LoxCallable;
+
 import java.util.List;
 
 

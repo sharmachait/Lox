@@ -1,7 +1,6 @@
 package Language.Syntax.AST.Grammar.Statements;
 
 import Language.Syntax.AST.Grammar.Expressions.Expression;
-import Language.Syntax.AstPrinter;
 import Language.Syntax.StatementVisitor;
 
 public class ExpressionStatement extends Statement {
