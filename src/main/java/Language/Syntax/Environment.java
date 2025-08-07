@@ -47,8 +47,8 @@ public class Environment {
      *
      * thats a semantic choice of the language, like python the variable may be redefined
      * */
-    public void define(String name, Val value){
-        values.put(name, value);
+    public void define(String name, Object value, boolean isAssigned){
+        values.put(name, Val.of(value, isAssigned));
     }
 
     // You can refer to a variable in a chunk of code without immediately evaluating it if that chunk of code is wrapped inside a function.

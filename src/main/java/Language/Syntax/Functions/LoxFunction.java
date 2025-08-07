@@ -25,7 +25,7 @@ public class LoxFunction implements LoxCallable {
             String param = function.params.get(i).lexeme;
             Object arg = arguments.get(i);
 
-            environment.define(param, Environment.Val.of(arg, true));
+            environment.define(param, arg, true);
         }
 
         try{

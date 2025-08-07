@@ -8,6 +8,7 @@ import Language.Lexicon.LoxScanner;
 import Language.Lexicon.Token;
 import Language.Lexicon.TokenType;
 import Language.Syntax.AST.Grammar.Statements.Statement;
+import Language.Syntax.Analysis.Resolver;
 import Language.Syntax.Interpreter;
 import Language.Syntax.AST.Parser;
 
@@ -40,6 +41,11 @@ public class Runner {
         }
 
         Interpreter interpreter = new Interpreter();
+        Resolver resolver = new Resolver(interpreter);
+
+        resolver.resolve(statements);
+
+
         System.out.println("============Interpreter============");
         List<Object> res = interpreter.interpret(statements);
         if(isIdle) System.out.println(res);

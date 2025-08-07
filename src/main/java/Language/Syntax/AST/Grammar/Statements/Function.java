@@ -8,12 +8,12 @@ import java.util.List;
 public class Function extends Statement{
     public final Token name;
     public final List<Token> params;
-    public final Block body;
+    public final List<Statement> body;
 
     public Function(Token name, List<Token> params, List<Statement> stmts) {
         this.name = name;
         this.params = params;
-        this.body = new Block(stmts);
+        this.body = stmts;
     }
 
     @Override

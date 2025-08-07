@@ -5,6 +5,6 @@ import Language.Syntax.StatementVisitor;
 public class Continue extends Statement{
     @Override
     public <R> R accept(StatementVisitor<R> visitor) {
-        return visitor.visitContinueStatement(this);
+        return null;
     }
 }

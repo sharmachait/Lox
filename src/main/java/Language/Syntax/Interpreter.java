@@ -12,20 +12,22 @@ import Language.Syntax.Functions.ReadLine;
 import Runner.Runner;
 import Error.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Unlike expressions, statements produce no values, so the return type of the visit methods is Void
 public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<Object> {
     final Environment global = new Environment(); // never changing
     private Environment env = global; // can change as we enter different blocks of scope
-
+    private final Map<Expression, Integer> resolutionScopeDepth = new HashMap<>();
     public Environment getGlobal() {
         return global;
     }
 
     public Interpreter() {
-        global.define("clock", Environment.Val.of(new Clock(), true));
-        global.define("readLine", Environment.Val.of(new ReadLine(), true));
+        global.define("clock", new Clock(), true);
+        global.define("readLine", new ReadLine(), true);
     }
 
     public List<Object> interpret(List<Statement> statements) {
@@ -171,30 +173,29 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     @Override
     public Object visitVarStatement(VarDecl stmt) {
         Object value = null;
-        Environment.Val val;
         if(stmt.initializer!=null){
             value = stmt.initializer.accept(this);
-            val = Environment.Val.of(value, true);
+            env.define(stmt.name.lexeme, value, true);
         }else{
-            val = Environment.Val.of(value);
+            env.define(stmt.name.lexeme, value, false);
         }
 
-        env.define(stmt.name.lexeme, val);
+
         return value;
     }
 
     @Override
     public Object visitBlockStatement(Block block) {
         Environment scopedEnv = new Environment(this.env);
-        return executeBlock(block, scopedEnv);
+        return executeBlock(block.statements, scopedEnv);
     }
 
-    public Object executeBlock(Block block, Environment scopedEnv) {
+    public Object executeBlock(List<Statement> block, Environment scopedEnv) {
         Environment previous = this.env;
         Object res = null;
         try{
             this.env = scopedEnv; // shadowed
-            for(Statement stmt: block.statements ){
+            for(Statement stmt: block ){
                 res = stmt.accept(this);
             }
         }finally{
@@ -246,7 +247,7 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     @Override
     public Object visitFunctionStatement(Function functionStatement) {
         LoxFunction function = new LoxFunction(functionStatement, env); // add the Env when the function is declared
-        env.define(functionStatement.name.lexeme, Environment.Val.of(function, true));
+        env.define(functionStatement.name.lexeme, function, true);
         return null;
     }
 
@@ -260,7 +261,16 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
 
     @Override
     public Object visitVariableExpression(Variable variable){
-        return env.get(variable.name).val;
+        return lookUpVariableResolution(variable.name, variable);
+    }
+
+    private Object lookUpVariableResolution(Token name, Expression variable) {
+        Integer distance = resolutionScopeDepth.get(variable);
+        if(distance == null){
+            return env.getFromDepth(distance, name.lexeme);
+        }else{
+            return global.get(name);
+        }
     }
 
     @Override
@@ -302,5 +312,15 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
                     call.paren);
         }
         return function.call(this, arguments);
+    }
+
+    public void markResolutionScope(Expression expr, int depth) {
+        // typically data like this is stored in the expression node it self
+        // the benefit of storing it in a hashmap is that its easy to look up, update and discard
+        // which is very common place for modern IDEs to do as they reparse and reparse the code again and again
+        // after each key stroke
+        // and since each expression is java object with a unique hash, there is no confusion if multiple expressions
+        // resolve same variables
+        resolutionScopeDepth.put(expr, depth);
     }
 }
