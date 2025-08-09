@@ -8,15 +8,15 @@ import Language.Syntax.Interpreter;
 import Language.Syntax.StatementVisitor;
 import Runner.Runner;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>{
-
+    private class Scope{
+        public Map<String, Boolean> resolution = new HashMap<>();
+        public Set<Token> isUsed = new HashSet<>();
+    }
     private final Interpreter interpreter;
-    private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private final Stack<Scope> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
     private LoopType currentLoop = LoopType.NONE;
     public Resolver(Interpreter interpreter) {
@@ -61,19 +61,20 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
         // the initializers resolution will bring the control here
 
         if(!scopes.isEmpty()){
-            Map<String, Boolean> scope = scopes.peek();//.getOrDefault(variable.name.lexeme, false);
+            Map<String, Boolean> scope = scopes.peek().resolution;//.getOrDefault(variable.name.lexeme, false);
             if(scope.containsKey(variable.name.lexeme) && scope.get(variable.name.lexeme) == false){
                 Runner.parserError(variable.name, "Can not read local variable before its own initialization.");
             }
         }
-
+        Set<Token> isUsed = scopes.peek().isUsed;
+        isUsed.remove(variable.name);
         markResolutionScope(variable, variable.name);
         return null;
     }
 
     private void markResolutionScope(Expression expr, Token name) {
         for(int i = scopes.size()-1; i >= 0; i--){
-            if(scopes.get(i).containsKey(name.lexeme)) {
+            if(scopes.get(i).resolution.containsKey(name.lexeme)) {
                 int tokenCurrScopeDistResolutionScope = scopes.size()-1-i;
                 // tells us how deep need to go to resolve this variable in the environment chain
                 // since we add to scopes when a new scope is created the global scope and the global variables
@@ -137,18 +138,20 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
     private void declare(Token name) {
         if(scopes.isEmpty()) return;
         boolean isResolved = false;
-        Map<String,Boolean> scope = scopes.peek(); // declare in the deepest scope so far
+        Map<String,Boolean> scope = scopes.peek().resolution;
+        Set<Token> isUsed = scopes.peek().isUsed;// declare in the deepest scope so far
         // declaring variables with the same name in local scopes an error
         if(scope.containsKey(name.lexeme)){
             Runner.parserError(name,  "Already a variable with this name in this scope.");
         }
         scope.put(name.lexeme, isResolved);
+        isUsed.add(name);
     }
 
     private void define(Token name) {
         if(scopes.isEmpty()) return;
         boolean isResolved = true;
-        Map<String,Boolean> scope = scopes.peek(); //variable is resolved after the initializer is resolved
+        Map<String,Boolean> scope = scopes.peek().resolution; //variable is resolved after the initializer is resolved
         scope.put(name.lexeme, isResolved);
     }
 
@@ -161,11 +164,15 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
     }
 
     private void beginScope() {
-        scopes.push(new HashMap<String, Boolean>());
+        scopes.push(new Scope());
     }
 
     private void endScope() {
-        scopes.pop();
+        Scope scope = scopes.pop();
+        Set<Token> isUsed = scope.isUsed;
+        for(Token key: isUsed){
+            System.out.println("[ line: "+key.line+" ]"+" Warning: variable "+key.lexeme+" defined but never used.");
+        }
     }
 
     public void resolve(List<Statement> statements) {

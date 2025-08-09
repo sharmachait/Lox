@@ -6,6 +6,7 @@ import Language.Syntax.StatementVisitor;
 public class If extends Statement{
     public final Expression condition;
     public final Statement thenBranch;
+    public final Statement elseBranch;
 
     public If(Expression condition, Statement thenBranch, Statement elseBranch) {
         this.condition = condition;
@@ -13,7 +14,6 @@ public class If extends Statement{
         this.elseBranch = elseBranch;
     }
 
-    public final Statement elseBranch;
     @Override
     public <R> R accept(StatementVisitor<R> visitor) {
         return visitor.visitIfStatement(this);
