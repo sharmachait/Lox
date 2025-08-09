@@ -5,7 +5,7 @@ import Language.Syntax.StatementVisitor;
 
 import java.util.List;
 
-public class Function extends Statement{
+public class Function extends Statement {
     public final Token name;
     public final List<Token> params;
     public final List<Statement> body;

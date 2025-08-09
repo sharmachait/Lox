@@ -29,6 +29,3 @@ public class Lox {
 //        System.out.println(new AstPrinter().print(expr));
 //    }
 }
-
-
-https://craftinginterpreters.com/resolving-and-binding.html#accessing-a-resolved-variable

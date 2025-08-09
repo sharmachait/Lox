@@ -45,6 +45,9 @@ public class Runner {
 
         resolver.resolve(statements);
 
+        if(parseError !=null){
+            return ;
+        }
 
         System.out.println("============Interpreter============");
         List<Object> res = interpreter.interpret(statements);

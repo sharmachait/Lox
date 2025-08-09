@@ -59,8 +59,11 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
         // if the initializer for a variable declaration references a variable,
         // the initializers resolution will bring the control here
 
-        if(!scopes.isEmpty() && scopes.peek().get(variable.name.lexeme) == false){
-            Runner.parserError(variable.name, "Can not read local variable before its own initialization.");
+        if(!scopes.isEmpty()){
+            Map<String, Boolean> scope = scopes.peek();//.getOrDefault(variable.name.lexeme, false);
+            if(scope.containsKey(variable.name.lexeme) && scope.get(variable.name.lexeme) == false){
+                Runner.parserError(variable.name, "Can not read local variable before its own initialization.");
+            }
         }
 
         markResolutionScope(variable, variable.name);
@@ -133,15 +136,15 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
     private void declare(Token name) {
         if(scopes.isEmpty()) return;
         boolean isResolved = false;
-        scopes.peek() // declare in the deepest scope so far
-                .put(name.lexeme, isResolved);
+        Map<String,Boolean> scope = scopes.peek(); // declare in the deepest scope so far
+        scope.put(name.lexeme, isResolved);
     }
 
     private void define(Token name) {
         if(scopes.isEmpty()) return;
         boolean isResolved = true;
-        scopes.peek() //variable is resolved after the initializer is resolved
-                .put(name.lexeme, isResolved);
+        Map<String,Boolean> scope = scopes.peek(); //variable is resolved after the initializer is resolved
+        scope.put(name.lexeme, isResolved);
     }
 
     @Override
@@ -160,7 +163,7 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
         scopes.pop();
     }
 
-    private void resolve(List<Statement> statements) {
+    public void resolve(List<Statement> statements) {
         for (Statement statement : statements) {
             statement.accept(this);
         }

@@ -91,4 +91,24 @@ public class Environment {
         }
         throw new InterpreterException("Undefined variable '" + name.lexeme + "'.", name);
     }
+    public Val getFromDepth(Integer distance, String lexeme) {
+        Environment ancestor = ancestor(distance);
+        assert ancestor.values.get(lexeme) != null;
+        return ancestor.values.get(lexeme);
+    }
+
+    private Environment ancestor(Integer distance) {
+        Environment environment = this;
+        for (int i = 0; i < distance; i++) {
+            assert environment != null;
+            environment = environment.enclosing;
+        }
+        assert environment != null;
+        return environment;
+    }
+    public Val assignToDepth(Integer distance, Token name, Val val) {
+        Environment ancestor = ancestor(distance);
+        assert ancestor.values.containsKey(name.lexeme);
+        return ancestor.values.put(name.lexeme, val);
+    }
 }

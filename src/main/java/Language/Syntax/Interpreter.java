@@ -179,8 +179,6 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
         }else{
             env.define(stmt.name.lexeme, value, false);
         }
-
-
         return value;
     }
 
@@ -247,7 +245,7 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     @Override
     public Object visitFunctionStatement(Function functionStatement) {
         LoxFunction function = new LoxFunction(functionStatement, env); // add the Env when the function is declared
-        env.define(functionStatement.name.lexeme, function, true);
+        env.define(functionStatement.name.lexeme, (LoxCallable)function, true);
         return null;
     }
 
@@ -266,10 +264,10 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
 
     private Object lookUpVariableResolution(Token name, Expression variable) {
         Integer distance = resolutionScopeDepth.get(variable);
-        if(distance == null){
-            return env.getFromDepth(distance, name.lexeme);
+        if(distance != null){
+            return env.getFromDepth(distance, name.lexeme).val;
         }else{
-            return global.get(name);
+            return global.get(name).val;
         }
     }
 
@@ -277,7 +275,12 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     public Object visitAssignmentExpression(Assignment assign) {
         Object value = assign.value.accept(this);
         Environment.Val val = Environment.Val.of(value, true);
-        return env.assign(assign.name, val);
+        Integer distance = resolutionScopeDepth.get(assign);
+        if(distance!=null){
+            return env.assignToDepth(distance, assign.name, val).val;
+        }else{
+            return global.assign(assign.name, val).val;
+        }
     }
 
     @Override
