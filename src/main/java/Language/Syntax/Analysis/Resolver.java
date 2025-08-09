@@ -137,6 +137,10 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
         if(scopes.isEmpty()) return;
         boolean isResolved = false;
         Map<String,Boolean> scope = scopes.peek(); // declare in the deepest scope so far
+        // declaring variables with the same name in local scopes an error
+        if(scope.containsKey(name.lexeme)){
+            Runner.parserError(name,  "Already a variable with this name in this scope.");
+        }
         scope.put(name.lexeme, isResolved);
     }
 

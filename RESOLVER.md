@@ -15,3 +15,16 @@ There are no side effects. When the static analysis visits a print statement, it
 
 There is no control flow. Loops are visited only once. Both branches are visited in if statements. Logic operators are not short-circuited.
 
+We allow declaring multiple variables with the same name in global scope
+but doing so in the local scope can be considered a mistake
+
+```lox
+fun bad() {
+  var a = "first";
+  var a = "second";
+}
+```
+
+if you knew the variable a already existed why not just assign to it
+and if you didnt know it existed, they probably didnt intent to overwrite the previous one
+this over writing then should be an error

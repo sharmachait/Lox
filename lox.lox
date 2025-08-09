@@ -6,5 +6,9 @@ var a = "global";
 
   showA();
   var a = "block";
+  fun showA2() {
+      print a;
+    }
   showA();
+  showA2();
 }
