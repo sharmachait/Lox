@@ -252,6 +252,7 @@ public class Interpreter implements ExpressionVisitor<Object>, StatementVisitor<
     @Override
     public Object visitReturnStatement(Return stmt) {
         Object val = null;
+
         if(stmt.expression!=null)
              val = stmt.expression.accept(this);
         throw new ReturnException(val);

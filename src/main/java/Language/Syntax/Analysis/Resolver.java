@@ -17,7 +17,8 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
 
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
-
+    private FunctionType currentFunction = FunctionType.NONE;
+    private LoopType currentLoop = LoopType.NONE;
     public Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
     }
@@ -183,20 +184,23 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
 
     @Override
     public Void visitWhileStatement(While stmt) {
+        LoopType prev = currentLoop;
+        currentLoop = LoopType.LOOP;
         stmt.condition.accept(this);
         stmt.body.accept(this);
+        currentLoop = prev;
         return null;
     }
 
     @Override
     public Void visitBreakStatement(Break stmt) {
-        stmt.accept(this);
+        if(currentLoop == LoopType.NONE) Runner.parserError(stmt.token, "Can't break from top-level code.");
         return null;
     }
 
     @Override
     public Void visitContinueStatement(Continue stmt) {
-        stmt.accept(this);
+        if(currentLoop == LoopType.NONE) Runner.parserError(stmt.token, "Can't break from top-level code.");
         return null;
     }
 
@@ -204,11 +208,13 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
     public Void visitFunctionStatement(Function function) {
         declare(function.name);
         define(function.name);
-        resolveFunctionBody(function);
+        resolveFunctionBody(function, FunctionType.FUNCTION);
         return null;
     }
 
-    private void resolveFunctionBody(Function function) {
+    private void resolveFunctionBody(Function function, FunctionType functionType) {
+        FunctionType enclosingFunction = currentFunction;
+        currentFunction = functionType;
         beginScope();
         for(Token param: function.params){
             declare(param);
@@ -216,12 +222,24 @@ public class Resolver implements ExpressionVisitor<Void>, StatementVisitor<Void>
         }
         resolve(function.body);
         endScope();
+        currentFunction = enclosingFunction;
     }
 
     @Override
     public Void visitReturnStatement(Return stmt) {
+        if (currentFunction == FunctionType.NONE) {
+            Runner.parserError(stmt.keyword, "Can't return from top-level code.");
+        }
         if(stmt.expression!=null)
             stmt.expression.accept(this);
         return null;
+    }
+    private enum FunctionType {
+        NONE,
+        FUNCTION
+    }
+    private enum LoopType {
+        NONE,
+        LOOP
     }
 }

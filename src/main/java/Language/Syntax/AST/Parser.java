@@ -103,13 +103,15 @@ public class Parser {
     }
 
     private Statement continueStatement() throws ParseError {
+        Token keyword = previous();
         consume(SEMICOLON, "Expect ';' after break.");
-        return new Continue();
+        return new Continue(keyword);
     }
 
     private Statement breakStatement() throws ParseError {
+        Token keyword = previous();
         consume(SEMICOLON, "Expect ';' after break.");
-        return new Break();
+        return new Break(keyword);
     }
 
     private Statement forStatement() throws ParseError {
